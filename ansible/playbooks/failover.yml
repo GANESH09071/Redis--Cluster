@@ -1,0 +1,22 @@
+---
+- name: Trigger Cluster Failover
+  hosts: "{{ target_replica }}"
+  gather_facts: no
+  tasks:
+    - name: Run cluster failover command (takeover)
+      command: redis-cli -p 6379 cluster failover takeover
+      register: failover_result
+      when: force_takeover | default(false) | bool
+
+    - name: Run cluster failover command (standard)
+      command: redis-cli -p 6379 cluster failover
+      register: failover_result
+      when: not (force_takeover | default(false) | bool)
+
+    - name: Wait for failover to complete (replica becomes master)
+      command: redis-cli -p 6379 info replication
+      register: rep_info
+      until: "'role:master' in rep_info.stdout"
+      retries: 30
+      delay: 1
+      changed_when: false

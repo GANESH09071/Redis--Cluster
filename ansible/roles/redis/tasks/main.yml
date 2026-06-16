@@ -1,0 +1,114 @@
+---
+- name: Check if redis-server is installed
+  command: redis-server --version
+  register: redis_installed_version
+  ignore_errors: true
+  changed_when: false
+
+- name: Install build dependencies if needed
+  apt:
+    name:
+      - build-essential
+      - pkg-config
+      - curl
+    state: present
+    update_cache: yes
+  become: yes
+  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+
+- name: Download Redis source tarball
+  get_url:
+    url: "https://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
+    dest: "/tmp/redis-{{ redis_version }}.tar.gz"
+  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+
+- name: Extract Redis source tarball
+  unarchive:
+    src: "/tmp/redis-{{ redis_version }}.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+
+- name: Clean Redis build dir
+  command: make distclean
+  args:
+    chdir: "/tmp/redis-{{ redis_version }}"
+  become: yes
+  ignore_errors: yes
+  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+
+- name: Compile Redis with libc allocator
+  shell: make -j$(nproc) MALLOC=libc
+  args:
+    chdir: "/tmp/redis-{{ redis_version }}"
+  become: yes
+  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+
+- name: Install Redis
+  command: make install MALLOC=libc
+  args:
+    chdir: "/tmp/redis-{{ redis_version }}"
+  become: yes
+  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+
+
+
+- name: Create Redis configuration directory
+  file:
+    path: "{{ redis_conf_dir }}"
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Create Redis data directory
+  file:
+    path: "{{ redis_dir }}"
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Write Redis configuration file
+  template:
+    src: redis.conf.j2
+    dest: "{{ redis_conf_dir }}/redis.conf"
+    mode: '0644'
+  become: yes
+  register: config_updated
+
+- name: Check if Redis is running
+  command: pgrep redis-server
+  register: redis_running
+  ignore_errors: true
+  changed_when: false
+
+- name: Stop Redis if running and version mismatch or config changed
+  command: redis-cli -p {{ redis_port }} shutdown
+  become: yes
+  when: >
+    redis_running.rc == 0 and 
+    (config_updated.changed or 
+     (redis_installed_version.rc == 0 and redis_version not in redis_installed_version.stdout))
+  ignore_errors: true
+
+- name: Force stop Redis if still running
+  shell: |
+    if pgrep redis-server; then
+      pkill -9 redis-server
+      sleep 2
+    fi
+  become: yes
+  when: >
+    redis_running.rc == 0 and 
+    (config_updated.changed or 
+     (redis_installed_version.rc == 0 and redis_version not in redis_installed_version.stdout))
+  ignore_errors: true
+
+- name: Start Redis server
+  command: redis-server {{ redis_conf_dir }}/redis.conf
+  become: yes
+
+- name: Wait for Redis to start
+  wait_for:
+    port: "{{ redis_port }}"
+    delay: 1
+    timeout: 10

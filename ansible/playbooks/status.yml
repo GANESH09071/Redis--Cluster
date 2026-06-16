@@ -1,0 +1,35 @@
+---
+- name: Gather Redis Cluster Status
+  hosts: redis_nodes
+  gather_facts: no
+  tasks:
+    - name: Run redis-cli info server
+      command: redis-cli -p 6379 info server
+      register: info_server
+      changed_when: false
+
+    - name: Run redis-cli info memory
+      command: redis-cli -p 6379 info memory
+      register: info_memory
+      changed_when: false
+
+    - name: Run redis-cli info keyspace
+      command: redis-cli -p 6379 info keyspace
+      register: info_keyspace
+      changed_when: false
+      ignore_errors: true
+
+    - name: Run redis-cli cluster nodes
+      command: redis-cli -p 6379 cluster nodes
+      register: cluster_nodes
+      changed_when: false
+      run_once: true
+
+    - name: Print collected info
+      debug:
+        msg:
+          host: "{{ inventory_hostname }}"
+          info_server: "{{ info_server.stdout }}"
+          info_memory: "{{ info_memory.stdout }}"
+          info_keyspace: "{{ info_keyspace.stdout }}"
+          cluster_nodes: "{{ cluster_nodes.stdout }}"

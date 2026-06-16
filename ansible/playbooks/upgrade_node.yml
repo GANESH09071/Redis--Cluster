@@ -1,0 +1,34 @@
+---
+- name: Upgrade Redis on a single node
+  hosts: "{{ target_host }}"
+  gather_facts: no
+  tasks:
+    - name: Stop Redis server if running (rollback clean preparation)
+      command: redis-cli -p 6379 shutdown
+      ignore_errors: yes
+      become: yes
+      when: skip_sync_wait | default(false) | bool
+
+    - name: Clean Redis database files but preserve nodes.conf
+      shell: find /var/lib/redis -type f ! -name "nodes.conf" -delete && find /var/lib/redis -mindepth 1 -type d -exec rm -rf {} +
+      become: yes
+      ignore_errors: yes
+      when: skip_sync_wait | default(false) | bool
+
+    - name: Run redis role for target version
+      include_role:
+        name: redis
+      vars:
+        redis_version: "{{ target_version }}"
+
+    - name: Wait for replication sync if node is a replica
+      command: redis-cli -p 6379 info replication
+      register: replication_info
+      until: >
+        'role:slave' not in replication_info.stdout or
+        'master_link_status:up' in replication_info.stdout
+      retries: 60
+      delay: 2
+      changed_when: false
+      when: not (skip_sync_wait | default(false) | bool)
+

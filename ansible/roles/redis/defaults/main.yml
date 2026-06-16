@@ -1,0 +1,5 @@
+---
+redis_version: 7.0.15
+redis_port: 6379
+redis_dir: /var/lib/redis
+redis_conf_dir: /etc/redis

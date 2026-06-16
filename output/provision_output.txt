@@ -1,0 +1,509 @@
+✓ Podman 5.7.0 found
+✓ Ansible 2.21.0 found
+Proceeding...
+[INFO] Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1
+[INFO] Cleaning up any extra/scaled nodes...
+[SUCCESS] Inventory reset to default 6 nodes.
+[INFO] SSH keys already present in ansible/ssh
+[INFO] Verifying container infrastructure...
+[INFO] Starting container infrastructure...
+STEP 1/13: FROM ubuntu:22.04
+STEP 1/13: FROM ubuntu:22.04
+STEP 1/13: FROM ubuntu:22.04
+STEP 1/13: FROM ubuntu:22.04
+STEP 1/13: FROM ubuntu:22.04
+STEP 1/13: FROM ubuntu:22.04
+STEP 2/13: ENV DEBIAN_FRONTEND=noninteractive
+STEP 2/13: ENV DEBIAN_FRONTEND=noninteractive
+STEP 2/13: ENV DEBIAN_FRONTEND=noninteractive
+STEP 2/13: ENV DEBIAN_FRONTEND=noninteractive
+--> Using cache 7ae0513105e13153af338d08fda884a9ec226f149785d4d14394455512060b8a
+--> 7ae0513105e1
+STEP 2/13: ENV DEBIAN_FRONTEND=noninteractive
+--> Using cache 7ae0513105e13153af338d08fda884a9ec226f149785d4d14394455512060b8a
+--> 7ae0513105e1
+STEP 2/13: ENV DEBIAN_FRONTEND=noninteractive
+--> Using cache 7ae0513105e13153af338d08fda884a9ec226f149785d4d14394455512060b8a
+--> 7ae0513105e1
+--> Using cache 7ae0513105e13153af338d08fda884a9ec226f149785d4d14394455512060b8a
+--> 7ae0513105e1
+STEP 3/13: RUN apt-get update && apt-get install -y     openssh-server     python3     python3-pip     sudo     curl     build-essential     pkg-config     iproute2     && rm -rf /var/lib/apt/lists/*
+--> Using cache 7ae0513105e13153af338d08fda884a9ec226f149785d4d14394455512060b8a
+--> 7ae0513105e1
+--> Using cache 7ae0513105e13153af338d08fda884a9ec226f149785d4d14394455512060b8a
+--> 7ae0513105e1
+STEP 3/13: RUN apt-get update && apt-get install -y     openssh-server     python3     python3-pip     sudo     curl     build-essential     pkg-config     iproute2     && rm -rf /var/lib/apt/lists/*
+--> Using cache 43ec5f54abf005168bfb70688f6272501304d9a6178ec7e5250c589848cbdc10
+--> 43ec5f54abf0
+STEP 3/13: RUN apt-get update && apt-get install -y     openssh-server     python3     python3-pip     sudo     curl     build-essential     pkg-config     iproute2     && rm -rf /var/lib/apt/lists/*
+--> Using cache 43ec5f54abf005168bfb70688f6272501304d9a6178ec7e5250c589848cbdc10
+--> 43ec5f54abf0
+STEP 3/13: RUN apt-get update && apt-get install -y     openssh-server     python3     python3-pip     sudo     curl     build-essential     pkg-config     iproute2     && rm -rf /var/lib/apt/lists/*
+--> Using cache 43ec5f54abf005168bfb70688f6272501304d9a6178ec7e5250c589848cbdc10
+--> 43ec5f54abf0
+STEP 3/13: RUN apt-get update && apt-get install -y     openssh-server     python3     python3-pip     sudo     curl     build-essential     pkg-config     iproute2     && rm -rf /var/lib/apt/lists/*
+STEP 3/13: RUN apt-get update && apt-get install -y     openssh-server     python3     python3-pip     sudo     curl     build-essential     pkg-config     iproute2     && rm -rf /var/lib/apt/lists/*
+--> Using cache 43ec5f54abf005168bfb70688f6272501304d9a6178ec7e5250c589848cbdc10
+--> 43ec5f54abf0
+STEP 4/13: RUN mkdir /var/run/sshd
+--> Using cache 43ec5f54abf005168bfb70688f6272501304d9a6178ec7e5250c589848cbdc10
+--> 43ec5f54abf0
+STEP 4/13: RUN mkdir /var/run/sshd
+STEP 4/13: RUN mkdir /var/run/sshd
+--> Using cache 5590ae1a8022c9670bafdd93405505f92df7e04398e659947a662645790af25c
+--> 5590ae1a8022
+--> Using cache 43ec5f54abf005168bfb70688f6272501304d9a6178ec7e5250c589848cbdc10
+--> 43ec5f54abf0
+STEP 4/13: RUN mkdir /var/run/sshd
+--> Using cache 5590ae1a8022c9670bafdd93405505f92df7e04398e659947a662645790af25c
+--> 5590ae1a8022
+--> Using cache 5590ae1a8022c9670bafdd93405505f92df7e04398e659947a662645790af25c
+--> 5590ae1a8022
+STEP 4/13: RUN mkdir /var/run/sshd
+STEP 4/13: RUN mkdir /var/run/sshd
+STEP 5/13: RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+STEP 5/13: RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+--> Using cache 5590ae1a8022c9670bafdd93405505f92df7e04398e659947a662645790af25c
+--> 5590ae1a8022
+--> Using cache 5590ae1a8022c9670bafdd93405505f92df7e04398e659947a662645790af25c
+--> 5590ae1a8022
+--> Using cache 7defc1624fa534dc260aed827ccee226c983e7ce838dbe92af5581f8220c0148
+--> 7defc1624fa5
+--> Using cache 5590ae1a8022c9670bafdd93405505f92df7e04398e659947a662645790af25c
+--> 5590ae1a8022
+STEP 5/13: RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+STEP 5/13: RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+--> Using cache 7defc1624fa534dc260aed827ccee226c983e7ce838dbe92af5581f8220c0148
+--> 7defc1624fa5
+--> Using cache 7defc1624fa534dc260aed827ccee226c983e7ce838dbe92af5581f8220c0148
+--> 7defc1624fa5
+STEP 6/13: RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+STEP 5/13: RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+STEP 5/13: RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+--> Using cache 7defc1624fa534dc260aed827ccee226c983e7ce838dbe92af5581f8220c0148
+--> 7defc1624fa5
+--> Using cache 7defc1624fa534dc260aed827ccee226c983e7ce838dbe92af5581f8220c0148
+--> 7defc1624fa5
+STEP 6/13: RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+--> Using cache ce8514266246e638120e5141d0d841d78271bfffc1e755df9bdacde407760b4a
+--> ce8514266246
+--> Using cache 7defc1624fa534dc260aed827ccee226c983e7ce838dbe92af5581f8220c0148
+--> 7defc1624fa5
+STEP 6/13: RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+STEP 6/13: RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+STEP 6/13: RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+--> Using cache ce8514266246e638120e5141d0d841d78271bfffc1e755df9bdacde407760b4a
+--> ce8514266246
+--> Using cache ce8514266246e638120e5141d0d841d78271bfffc1e755df9bdacde407760b4a
+--> ce8514266246
+STEP 7/13: RUN useradd -m -s /bin/bash ansible &&     echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+--> Using cache ce8514266246e638120e5141d0d841d78271bfffc1e755df9bdacde407760b4a
+--> ce8514266246
+--> Using cache ce8514266246e638120e5141d0d841d78271bfffc1e755df9bdacde407760b4a
+--> ce8514266246
+STEP 6/13: RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+--> Using cache 9424e3ca55dac1f21b1aa0fe651ae5fec6ae5fc0f9218189b293126ae866c1b0
+--> 9424e3ca55da
+--> Using cache ce8514266246e638120e5141d0d841d78271bfffc1e755df9bdacde407760b4a
+--> ce8514266246
+STEP 7/13: RUN useradd -m -s /bin/bash ansible &&     echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+STEP 7/13: RUN useradd -m -s /bin/bash ansible &&     echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+--> Using cache 9424e3ca55dac1f21b1aa0fe651ae5fec6ae5fc0f9218189b293126ae866c1b0
+--> 9424e3ca55da
+--> Using cache 9424e3ca55dac1f21b1aa0fe651ae5fec6ae5fc0f9218189b293126ae866c1b0
+--> 9424e3ca55da
+STEP 7/13: RUN useradd -m -s /bin/bash ansible &&     echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+STEP 7/13: RUN useradd -m -s /bin/bash ansible &&     echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+STEP 7/13: RUN useradd -m -s /bin/bash ansible &&     echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+--> Using cache 9424e3ca55dac1f21b1aa0fe651ae5fec6ae5fc0f9218189b293126ae866c1b0
+--> 9424e3ca55da
+STEP 8/13: RUN mkdir -p /home/ansible/.ssh &&     chown ansible:ansible /home/ansible/.ssh &&     chmod 700 /home/ansible/.ssh
+STEP 8/13: RUN mkdir -p /home/ansible/.ssh &&     chown ansible:ansible /home/ansible/.ssh &&     chmod 700 /home/ansible/.ssh
+--> Using cache 9424e3ca55dac1f21b1aa0fe651ae5fec6ae5fc0f9218189b293126ae866c1b0
+--> 9424e3ca55da
+STEP 8/13: RUN mkdir -p /home/ansible/.ssh &&     chown ansible:ansible /home/ansible/.ssh &&     chmod 700 /home/ansible/.ssh
+--> Using cache 9424e3ca55dac1f21b1aa0fe651ae5fec6ae5fc0f9218189b293126ae866c1b0
+--> 9424e3ca55da
+STEP 8/13: RUN mkdir -p /home/ansible/.ssh &&     chown ansible:ansible /home/ansible/.ssh &&     chmod 700 /home/ansible/.ssh
+--> Using cache 4437caadfffd861e4f22b20b590a23037d83081f96ae1a39eb88df4a7901bf94
+--> 4437caadfffd
+--> Using cache 4437caadfffd861e4f22b20b590a23037d83081f96ae1a39eb88df4a7901bf94
+--> 4437caadfffd
+--> Using cache 4437caadfffd861e4f22b20b590a23037d83081f96ae1a39eb88df4a7901bf94
+--> 4437caadfffd
+--> Using cache 4437caadfffd861e4f22b20b590a23037d83081f96ae1a39eb88df4a7901bf94
+--> 4437caadfffd
+STEP 8/13: RUN mkdir -p /home/ansible/.ssh &&     chown ansible:ansible /home/ansible/.ssh &&     chmod 700 /home/ansible/.ssh
+STEP 8/13: RUN mkdir -p /home/ansible/.ssh &&     chown ansible:ansible /home/ansible/.ssh &&     chmod 700 /home/ansible/.ssh
+--> Using cache 4437caadfffd861e4f22b20b590a23037d83081f96ae1a39eb88df4a7901bf94
+--> 4437caadfffd
+--> Using cache 4437caadfffd861e4f22b20b590a23037d83081f96ae1a39eb88df4a7901bf94
+--> 4437caadfffd
+STEP 9/13: EXPOSE 22
+STEP 9/13: EXPOSE 22
+STEP 9/13: EXPOSE 22
+STEP 9/13: EXPOSE 22
+--> Using cache c4213bbaf3cdb49bf8e97814973cbb606e55162afe6844a68220de8bbf453edf
+--> c4213bbaf3cd
+--> Using cache c4213bbaf3cdb49bf8e97814973cbb606e55162afe6844a68220de8bbf453edf
+--> c4213bbaf3cd
+--> Using cache c4213bbaf3cdb49bf8e97814973cbb606e55162afe6844a68220de8bbf453edf
+--> c4213bbaf3cd
+STEP 9/13: EXPOSE 22
+STEP 9/13: EXPOSE 22
+--> Using cache c4213bbaf3cdb49bf8e97814973cbb606e55162afe6844a68220de8bbf453edf
+--> c4213bbaf3cd
+--> Using cache c4213bbaf3cdb49bf8e97814973cbb606e55162afe6844a68220de8bbf453edf
+--> c4213bbaf3cd
+--> Using cache c4213bbaf3cdb49bf8e97814973cbb606e55162afe6844a68220de8bbf453edf
+--> c4213bbaf3cd
+STEP 10/13: COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+STEP 10/13: COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+STEP 10/13: COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+STEP 10/13: COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+STEP 10/13: COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+STEP 10/13: COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+--> Using cache e9ed67441a74ba6eb948d05851163de2301ef69d80759d1d5e99f07a61e458ec
+--> e9ed67441a74
+STEP 11/13: RUN chmod +x /usr/local/bin/entrypoint.sh
+--> Using cache e9ed67441a74ba6eb948d05851163de2301ef69d80759d1d5e99f07a61e458ec
+--> e9ed67441a74
+--> Using cache becccfd58153b753b8bbd72b426d852bdd3311655d6711803556409b33fb3aa8
+--> becccfd58153
+--> Using cache e9ed67441a74ba6eb948d05851163de2301ef69d80759d1d5e99f07a61e458ec
+--> e9ed67441a74
+STEP 11/13: RUN chmod +x /usr/local/bin/entrypoint.sh
+STEP 12/13: ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+--> Using cache 34a2b2ea170193475315815c68a795e76990f107bcd1164419def96745b2b7ea
+--> 34a2b2ea1701
+--> Using cache e9ed67441a74ba6eb948d05851163de2301ef69d80759d1d5e99f07a61e458ec
+--> e9ed67441a74
+--> Using cache e9ed67441a74ba6eb948d05851163de2301ef69d80759d1d5e99f07a61e458ec
+--> e9ed67441a74
+--> Using cache becccfd58153b753b8bbd72b426d852bdd3311655d6711803556409b33fb3aa8
+--> becccfd58153
+STEP 11/13: RUN chmod +x /usr/local/bin/entrypoint.sh
+STEP 13/13: CMD ["/usr/sbin/sshd", "-D"]
+--> Using cache e9ed67441a74ba6eb948d05851163de2301ef69d80759d1d5e99f07a61e458ec
+--> e9ed67441a74
+STEP 11/13: RUN chmod +x /usr/local/bin/entrypoint.sh
+STEP 11/13: RUN chmod +x /usr/local/bin/entrypoint.sh
+--> Using cache becccfd58153b753b8bbd72b426d852bdd3311655d6711803556409b33fb3aa8
+--> becccfd58153
+--> Using cache 24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+COMMIT redis-node-base:latest
+STEP 12/13: ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+--> Using cache becccfd58153b753b8bbd72b426d852bdd3311655d6711803556409b33fb3aa8
+--> becccfd58153
+STEP 11/13: RUN chmod +x /usr/local/bin/entrypoint.sh
+--> Using cache becccfd58153b753b8bbd72b426d852bdd3311655d6711803556409b33fb3aa8
+--> becccfd58153
+STEP 12/13: ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+--> Using cache becccfd58153b753b8bbd72b426d852bdd3311655d6711803556409b33fb3aa8
+--> becccfd58153
+--> Using cache 34a2b2ea170193475315815c68a795e76990f107bcd1164419def96745b2b7ea
+--> 34a2b2ea1701
+STEP 12/13: ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+--> Using cache 34a2b2ea170193475315815c68a795e76990f107bcd1164419def96745b2b7ea
+--> 34a2b2ea1701
+--> Using cache 34a2b2ea170193475315815c68a795e76990f107bcd1164419def96745b2b7ea
+--> 34a2b2ea1701
+STEP 12/13: ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+STEP 12/13: ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+STEP 13/13: CMD ["/usr/sbin/sshd", "-D"]
+--> 24a4ec525aef
+Successfully tagged localhost/redis-node-base:latest
+STEP 13/13: CMD ["/usr/sbin/sshd", "-D"]
+STEP 13/13: CMD ["/usr/sbin/sshd", "-D"]
+--> Using cache 24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+COMMIT redis-node-base:latest
+--> Using cache 24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+COMMIT redis-node-base:latest
+--> Using cache 34a2b2ea170193475315815c68a795e76990f107bcd1164419def96745b2b7ea
+--> 34a2b2ea1701
+--> Using cache 34a2b2ea170193475315815c68a795e76990f107bcd1164419def96745b2b7ea
+--> 34a2b2ea1701
+STEP 13/13: CMD ["/usr/sbin/sshd", "-D"]
+--> Using cache 24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+COMMIT redis-node-base:latest
+STEP 13/13: CMD ["/usr/sbin/sshd", "-D"]
+24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+--> Using cache 24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+COMMIT redis-node-base:latest
+--> Using cache 24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+COMMIT redis-node-base:latest
+--> 24a4ec525aef
+Successfully tagged localhost/redis-node-base:latest
+--> 24a4ec525aef
+Successfully tagged localhost/redis-node-base:latest
+--> 24a4ec525aef
+Successfully tagged localhost/redis-node-base:latest
+--> 24a4ec525aef
+Successfully tagged localhost/redis-node-base:latest
+24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+--> 24a4ec525aef
+Successfully tagged localhost/redis-node-base:latest
+24a4ec525aef2d1da31873c127dfc743adfa929cacaec4d6071de84925bd1cc1
+redis-node-1
+redis-node-2
+redis-node-3
+redis-node-4
+redis-node-5
+redis-node-6
+[SUCCESS] Container infrastructure is running
+[INFO] Verifying runner image...
+[INFO] Executing playbook provision.yml inside runner container...
+
+PLAY [Install and configure Redis on all nodes] ********************************
+
+TASK [Gathering Facts] *********************************************************
+[WARNING]: Platform linux on host redis-node-5 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+[WARNING]: Platform linux on host redis-node-2 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+[WARNING]: Platform linux on host redis-node-3 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+[WARNING]: Platform linux on host redis-node-4 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+[WARNING]: Platform linux on host redis-node-1 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+[WARNING]: Platform linux on host redis-node-6 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-5]
+ok: [redis-node-2]
+ok: [redis-node-3]
+ok: [redis-node-4]
+ok: [redis-node-1]
+ok: [redis-node-6]
+
+TASK [Stop Redis server if running] ********************************************
+fatal: [redis-node-4]: FAILED! => {"changed": true, "cmd": ["redis-cli", "-p", "6379", "shutdown"], "delta": "0:00:00.007793", "end": "2026-06-16 21:59:02.706086", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:02.698293", "stderr": "Could not connect to Redis at 127.0.0.1:6379: Connection refused", "stderr_lines": ["Could not connect to Redis at 127.0.0.1:6379: Connection refused"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-1]: FAILED! => {"changed": true, "cmd": ["redis-cli", "-p", "6379", "shutdown"], "delta": "0:00:00.010331", "end": "2026-06-16 21:59:02.768941", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:02.758610", "stderr": "Could not connect to Redis at 127.0.0.1:6379: Connection refused", "stderr_lines": ["Could not connect to Redis at 127.0.0.1:6379: Connection refused"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-5]: FAILED! => {"changed": true, "cmd": ["redis-cli", "-p", "6379", "shutdown"], "delta": "0:00:00.008659", "end": "2026-06-16 21:59:02.811009", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:02.802350", "stderr": "Could not connect to Redis at 127.0.0.1:6379: Connection refused", "stderr_lines": ["Could not connect to Redis at 127.0.0.1:6379: Connection refused"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-2]: FAILED! => {"changed": true, "cmd": ["redis-cli", "-p", "6379", "shutdown"], "delta": "0:00:00.033064", "end": "2026-06-16 21:59:02.796499", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:02.763435", "stderr": "Could not connect to Redis at 127.0.0.1:6379: Connection refused", "stderr_lines": ["Could not connect to Redis at 127.0.0.1:6379: Connection refused"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-3]: FAILED! => {"changed": true, "cmd": ["redis-cli", "-p", "6379", "shutdown"], "delta": "0:00:00.005916", "end": "2026-06-16 21:59:02.897588", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:02.891672", "stderr": "Could not connect to Redis at 127.0.0.1:6379: Connection refused", "stderr_lines": ["Could not connect to Redis at 127.0.0.1:6379: Connection refused"], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-6]: FAILED! => {"changed": true, "cmd": ["redis-cli", "-p", "6379", "shutdown"], "delta": "0:00:00.004299", "end": "2026-06-16 21:59:03.149341", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:03.145042", "stderr": "Could not connect to Redis at 127.0.0.1:6379: Connection refused", "stderr_lines": ["Could not connect to Redis at 127.0.0.1:6379: Connection refused"], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Kill lingering redis-server processes] ***********************************
+fatal: [redis-node-1]: FAILED! => {"changed": true, "cmd": ["pkill", "-9", "redis-server"], "delta": "0:00:00.028631", "end": "2026-06-16 21:59:03.862675", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:03.834044", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-2]: FAILED! => {"changed": true, "cmd": ["pkill", "-9", "redis-server"], "delta": "0:00:00.015780", "end": "2026-06-16 21:59:03.933895", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:03.918115", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-3]: FAILED! => {"changed": true, "cmd": ["pkill", "-9", "redis-server"], "delta": "0:00:00.016951", "end": "2026-06-16 21:59:03.966573", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:03.949622", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-5]: FAILED! => {"changed": true, "cmd": ["pkill", "-9", "redis-server"], "delta": "0:00:00.008906", "end": "2026-06-16 21:59:04.032889", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:04.023983", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-4]: FAILED! => {"changed": true, "cmd": ["pkill", "-9", "redis-server"], "delta": "0:00:00.010372", "end": "2026-06-16 21:59:04.095535", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:04.085163", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-6]: FAILED! => {"changed": true, "cmd": ["pkill", "-9", "redis-server"], "delta": "0:00:00.006147", "end": "2026-06-16 21:59:04.344424", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:04.338277", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [Clean Redis data directory for fresh provision] **************************
+changed: [redis-node-5]
+changed: [redis-node-4]
+changed: [redis-node-1]
+changed: [redis-node-2]
+changed: [redis-node-3]
+changed: [redis-node-6]
+
+TASK [redis : Check if redis-server is installed] ******************************
+ok: [redis-node-1]
+ok: [redis-node-2]
+ok: [redis-node-3]
+ok: [redis-node-4]
+ok: [redis-node-5]
+ok: [redis-node-6]
+
+TASK [redis : Install build dependencies if needed] ****************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Download Redis source tarball] ***********************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Extract Redis source tarball] ************************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Clean Redis build dir] *******************************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Compile Redis with libc allocator] *******************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Install Redis] ***************************************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-1]
+ok: [redis-node-2]
+ok: [redis-node-4]
+ok: [redis-node-5]
+ok: [redis-node-3]
+ok: [redis-node-6]
+
+TASK [redis : Create Redis data directory] *************************************
+changed: [redis-node-1]
+changed: [redis-node-2]
+changed: [redis-node-3]
+changed: [redis-node-4]
+changed: [redis-node-5]
+changed: [redis-node-6]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-2]
+ok: [redis-node-1]
+ok: [redis-node-4]
+ok: [redis-node-3]
+ok: [redis-node-5]
+ok: [redis-node-6]
+
+TASK [redis : Check if Redis is running] ***************************************
+fatal: [redis-node-1]: FAILED! => {"changed": false, "cmd": ["pgrep", "redis-server"], "delta": "0:00:00.010964", "end": "2026-06-16 21:59:18.448087", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:18.437123", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-3]: FAILED! => {"changed": false, "cmd": ["pgrep", "redis-server"], "delta": "0:00:00.024448", "end": "2026-06-16 21:59:18.578114", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:18.553666", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-2]: FAILED! => {"changed": false, "cmd": ["pgrep", "redis-server"], "delta": "0:00:00.010437", "end": "2026-06-16 21:59:18.600947", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:18.590510", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-4]: FAILED! => {"changed": false, "cmd": ["pgrep", "redis-server"], "delta": "0:00:00.011727", "end": "2026-06-16 21:59:18.634757", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:18.623030", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-5]: FAILED! => {"changed": false, "cmd": ["pgrep", "redis-server"], "delta": "0:00:00.008365", "end": "2026-06-16 21:59:18.766969", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:18.758604", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+fatal: [redis-node-6]: FAILED! => {"changed": false, "cmd": ["pgrep", "redis-server"], "delta": "0:00:00.006182", "end": "2026-06-16 21:59:18.973897", "msg": "non-zero return code", "rc": 1, "start": "2026-06-16 21:59:18.967715", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+...ignoring
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Force stop Redis if still running] *******************************
+skipping: [redis-node-1]
+skipping: [redis-node-2]
+skipping: [redis-node-3]
+skipping: [redis-node-4]
+skipping: [redis-node-5]
+skipping: [redis-node-6]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-1]
+changed: [redis-node-2]
+changed: [redis-node-4]
+changed: [redis-node-3]
+changed: [redis-node-5]
+changed: [redis-node-6]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-3]
+ok: [redis-node-1]
+ok: [redis-node-4]
+ok: [redis-node-2]
+ok: [redis-node-5]
+ok: [redis-node-6]
+
+PLAY [Form Redis Cluster] ******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [redis-node-1]
+
+TASK [Check cluster status] ****************************************************
+ok: [redis-node-1]
+
+TASK [Form cluster if not already healthy] *************************************
+changed: [redis-node-1]
+
+TASK [Get final cluster topology] **********************************************
+ok: [redis-node-1]
+
+TASK [Show final cluster topology] *********************************************
+ok: [redis-node-1] => {
+    "msg": [
+        "fcca59de509cede4efdb61627b7b147a00a3b922 10.10.0.13:6379@16379 master - 0 1781647170526 3 connected 10923-16383",
+        "b16522b2f53fdc0e45b63429148b61cf45d4d05e 10.10.0.15:6379@16379 master - 0 1781647169307 5 connected",
+        "fa9c7650924c44fec640b9bcc0ff8c36ca8ff375 10.10.0.12:6379@16379 master - 0 1781647170525 2 connected 5461-10922",
+        "5cb5f18904e83ebae9269637ff25d95df7d66bb3 10.10.0.16:6379@16379 master - 0 1781647168287 6 connected",
+        "c5190727efd87e5830a2245a3b6ade9b637898b2 10.10.0.14:6379@16379 slave fcca59de509cede4efdb61627b7b147a00a3b922 0 1781647170324 3 connected",
+        "ad112661edd4802d9b8f96902a8acbf9aa5314de 10.10.0.11:6379@16379 myself,master - 0 1781647169000 1 connected 0-5460"
+    ]
+}
+
+PLAY RECAP *********************************************************************
+redis-node-1               : ok=16   changed=6    unreachable=0    failed=0    skipped=8    rescued=0    ignored=3   
+redis-node-2               : ok=11   changed=5    unreachable=0    failed=0    skipped=8    rescued=0    ignored=3   
+redis-node-3               : ok=11   changed=5    unreachable=0    failed=0    skipped=8    rescued=0    ignored=3   
+redis-node-4               : ok=11   changed=5    unreachable=0    failed=0    skipped=8    rescued=0    ignored=3   
+redis-node-5               : ok=11   changed=5    unreachable=0    failed=0    skipped=8    rescued=0    ignored=3   
+redis-node-6               : ok=11   changed=5    unreachable=0    failed=0    skipped=8    rescued=0    ignored=3   
+
+[SUCCESS] Cluster provisioned successfully!
+
+Cluster State: ok
+
+MASTERS
+ 10.10.0.13:6379 [master] v7.0.15 slots: 10923-16383 keys: 0 mem: 1.85M
+ 10.10.0.12:6379 [master] v7.0.15 slots: 5461-10922 keys: 0 mem: 1.84M
+ 10.10.0.11:6379 [master] v7.0.15 slots: 0-5460 keys: 0 mem: 1.82M
+
+REPLICAS
+ 10.10.0.15:6379 [replica] v7.0.15 replicating: 10.10.0.11:6379 mem: 1.81M
+ 10.10.0.16:6379 [replica] v7.0.15 replicating: 10.10.0.12:6379 mem: 1.78M
+ 10.10.0.14:6379 [replica] v7.0.15 replicating: 10.10.0.13:6379 mem: 1.78M
+

@@ -1,0 +1,345 @@
+{"timestamp": "2026-06-16T16:04:58.374179", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1"}
+{"timestamp": "2026-06-16T16:04:58.386755", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:04:58.415675", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:04:59.868678", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:04:59.881110", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:05:01.187621", "level": "INFO", "message": "Starting container infrastructure..."}
+{"timestamp": "2026-06-16T16:05:19.314834", "level": "ERROR", "message": "Failed to start container infrastructure. Is Docker Desktop running?"}
+{"timestamp": "2026-06-16T16:12:43.541546", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1"}
+{"timestamp": "2026-06-16T16:12:43.551152", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:12:43.591574", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:12:44.989104", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:12:45.000380", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:12:46.368727", "level": "INFO", "message": "Starting container infrastructure..."}
+{"timestamp": "2026-06-16T16:13:05.068028", "level": "ERROR", "message": "Failed to start container infrastructure. Is Docker Desktop running?"}
+{"timestamp": "2026-06-16T16:22:26.688402", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T16:22:34.932602", "level": "ERROR", "message": "Could not retrieve cluster topology. Is the cluster provisioned and running?"}
+{"timestamp": "2026-06-16T16:25:13.428793", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T16:25:21.505232", "level": "ERROR", "message": "Could not retrieve cluster topology. Is the cluster provisioned and running?"}
+{"timestamp": "2026-06-16T16:26:58.200813", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1"}
+{"timestamp": "2026-06-16T16:26:58.211068", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:26:58.242419", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:26:59.548716", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:26:59.560320", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:27:01.057809", "level": "INFO", "message": "Starting container infrastructure..."}
+{"timestamp": "2026-06-16T16:27:21.191481", "level": "SUCCESS", "message": "Container infrastructure is running"}
+{"timestamp": "2026-06-16T16:27:30.342111", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:27:31.850063", "level": "INFO", "message": "Building runner image (this may take a moment)..."}
+{"timestamp": "2026-06-16T16:31:45.956507", "level": "INFO", "message": "Executing playbook provision.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:31:47.472226", "level": "ERROR", "message": "Playbook provision.yml inside container failed!"}
+{"timestamp": "2026-06-16T16:31:47.485255", "level": "ERROR", "message": "Provisioning failed."}
+{"timestamp": "2026-06-16T16:33:29.384968", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15"}
+{"timestamp": "2026-06-16T16:33:29.396991", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:33:29.418830", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:33:31.142064", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:33:31.148456", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:33:32.467992", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:33:42.666431", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:33:45.716850", "level": "INFO", "message": "Executing playbook provision.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:33:49.549259", "level": "ERROR", "message": "Playbook provision.yml inside container failed!"}
+{"timestamp": "2026-06-16T16:33:49.563775", "level": "ERROR", "message": "Provisioning failed."}
+{"timestamp": "2026-06-16T16:34:16.117105", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15"}
+{"timestamp": "2026-06-16T16:34:16.131915", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:34:16.193282", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:34:17.483039", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:34:17.494841", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:34:19.232171", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:34:29.587342", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:34:32.373669", "level": "INFO", "message": "Executing playbook provision.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:34:36.004325", "level": "ERROR", "message": "Playbook provision.yml inside container failed!"}
+{"timestamp": "2026-06-16T16:34:36.014951", "level": "ERROR", "message": "Provisioning failed."}
+{"timestamp": "2026-06-16T16:35:33.846609", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15"}
+{"timestamp": "2026-06-16T16:35:33.998852", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:35:34.110577", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:35:35.489545", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:35:35.499957", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:35:36.892073", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:35:46.256578", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:35:48.916380", "level": "INFO", "message": "Executing playbook provision.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:42:47.277507", "level": "SUCCESS", "message": "Cluster provisioned successfully!"}
+{"timestamp": "2026-06-16T16:43:12.439268", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T16:43:32.360928", "level": "INFO", "message": "Running command: ./redis-tool data seed --keys 1000"}
+{"timestamp": "2026-06-16T16:43:32.398504", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:43:32.414445", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:43:33.893995", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:43:33.906081", "level": "INFO", "message": "Flushing existing data from master nodes..."}
+{"timestamp": "2026-06-16T16:43:40.379566", "level": "INFO", "message": "Seeding 1000 keys into cluster..."}
+{"timestamp": "2026-06-16T16:43:43.455321", "level": "SUCCESS", "message": "Seeding summary:"}
+{"timestamp": "2026-06-16T16:44:07.895800", "level": "INFO", "message": "Running command: ./redis-tool data verify"}
+{"timestamp": "2026-06-16T16:44:07.908388", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:44:07.929363", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:44:09.435324", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:44:09.446153", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T16:44:15.360893", "level": "INFO", "message": "Auto-detected 1000 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T16:44:17.569121", "level": "SUCCESS", "message": "PASS \u2014 1000/1000 keys verified"}
+{"timestamp": "2026-06-16T16:44:47.069938", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T16:45:06.268420", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1"}
+{"timestamp": "2026-06-16T16:45:06.278907", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T16:45:06.308752", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T16:45:07.723978", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:45:07.735560", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:45:09.094969", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:45:18.034899", "level": "SUCCESS", "message": "Cluster is already provisioned on version 7.0.15. Nothing to do."}
+{"timestamp": "2026-06-16T16:46:01.268367", "level": "INFO", "message": "Running command: ./redis-tool data seed --keys 123"}
+{"timestamp": "2026-06-16T16:46:01.280890", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:46:01.310894", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:46:02.691563", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:46:02.701753", "level": "INFO", "message": "Flushing existing data from master nodes..."}
+{"timestamp": "2026-06-16T16:46:08.035214", "level": "INFO", "message": "Seeding 123 keys into cluster..."}
+{"timestamp": "2026-06-16T16:46:10.797885", "level": "SUCCESS", "message": "Seeding summary:"}
+{"timestamp": "2026-06-16T16:46:39.995148", "level": "INFO", "message": "Running command: ./redis-tool data verify"}
+{"timestamp": "2026-06-16T16:46:40.007558", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:46:40.027088", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:46:41.327010", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:46:41.336205", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T16:46:46.687934", "level": "INFO", "message": "Auto-detected 123 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T16:46:48.078090", "level": "SUCCESS", "message": "PASS \u2014 123/123 keys verified"}
+{"timestamp": "2026-06-16T16:47:59.994677", "level": "INFO", "message": "Running command: ./redis-tool upgrade --target-version 7.2.6 --strategy rolling"}
+{"timestamp": "2026-06-16T16:48:00.015445", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:48:00.045173", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:48:01.410179", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:48:01.419929", "level": "HEADER", "message": "Starting rolling upgrade to version 7.2.6..."}
+{"timestamp": "2026-06-16T16:48:01.435808", "level": "INFO", "message": "Step 1: Running pre-flight checks..."}
+{"timestamp": "2026-06-16T16:48:19.929772", "level": "INFO", "message": "Establishing pre-upgrade data baseline..."}
+{"timestamp": "2026-06-16T16:48:19.942135", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T16:48:19.983743", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T16:48:21.124893", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T16:48:21.141161", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T16:48:26.754169", "level": "INFO", "message": "Auto-detected 123 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T16:48:28.508647", "level": "SUCCESS", "message": "PASS \u2014 123/123 keys verified"}
+{"timestamp": "2026-06-16T16:48:28.517583", "level": "SUCCESS", "message": "Pre-flight checks passed."}
+{"timestamp": "2026-06-16T16:48:29.945380", "level": "INFO", "message": "[1/6] Upgrading replica 10.10.0.16 (redis-node-6)..."}
+{"timestamp": "2026-06-16T16:48:31.635261", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:48:34.362190", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:50:28.722686", "level": "SUCCESS", "message": "[1/6] Upgraded replica 10.10.0.16 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T16:50:29.853276", "level": "INFO", "message": "[2/6] Upgrading replica 10.10.0.15 (redis-node-5)..."}
+{"timestamp": "2026-06-16T16:50:31.309372", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:50:34.079743", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:52:35.257312", "level": "SUCCESS", "message": "[2/6] Upgraded replica 10.10.0.15 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T16:52:36.946944", "level": "INFO", "message": "[3/6] Upgrading replica 10.10.0.14 (redis-node-4)..."}
+{"timestamp": "2026-06-16T16:52:39.561186", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:52:41.906216", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:55:02.210735", "level": "SUCCESS", "message": "[3/6] Upgraded replica 10.10.0.14 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T16:55:03.379777", "level": "INFO", "message": "Promoting replica 10.10.0.16 (redis-node-6) to master..."}
+{"timestamp": "2026-06-16T16:55:05.020206", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:55:07.756117", "level": "INFO", "message": "Executing playbook failover.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:55:12.055627", "level": "SUCCESS", "message": "Failover complete. Former replica 10.10.0.16 is now master."}
+{"timestamp": "2026-06-16T16:55:12.065024", "level": "INFO", "message": "[4/6] Upgrading former master 10.10.0.12 (redis-node-2)..."}
+{"timestamp": "2026-06-16T16:55:13.913971", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:55:17.110640", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:57:23.272795", "level": "SUCCESS", "message": "[4/6] Upgraded former master 10.10.0.12 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T16:57:24.343891", "level": "INFO", "message": "Promoting replica 10.10.0.14 (redis-node-4) to master..."}
+{"timestamp": "2026-06-16T16:57:26.030834", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:57:28.596232", "level": "INFO", "message": "Executing playbook failover.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:57:33.137079", "level": "SUCCESS", "message": "Failover complete. Former replica 10.10.0.14 is now master."}
+{"timestamp": "2026-06-16T16:57:33.146411", "level": "INFO", "message": "[5/6] Upgrading former master 10.10.0.13 (redis-node-3)..."}
+{"timestamp": "2026-06-16T16:57:34.819902", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:57:37.648036", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:59:38.609009", "level": "SUCCESS", "message": "[5/6] Upgraded former master 10.10.0.13 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T16:59:40.019459", "level": "INFO", "message": "Promoting replica 10.10.0.15 (redis-node-5) to master..."}
+{"timestamp": "2026-06-16T16:59:41.538011", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:59:44.168063", "level": "INFO", "message": "Executing playbook failover.yml inside runner container..."}
+{"timestamp": "2026-06-16T16:59:48.149663", "level": "SUCCESS", "message": "Failover complete. Former replica 10.10.0.15 is now master."}
+{"timestamp": "2026-06-16T16:59:48.171484", "level": "INFO", "message": "[6/6] Upgrading former master 10.10.0.11 (redis-node-1)..."}
+{"timestamp": "2026-06-16T16:59:49.853184", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T16:59:52.657961", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:01:50.536677", "level": "SUCCESS", "message": "[6/6] Upgraded former master 10.10.0.11 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:01:50.546989", "level": "INFO", "message": "Step 4: Running post-upgrade verification..."}
+{"timestamp": "2026-06-16T17:01:50.572007", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:01:50.595883", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:01:52.143583", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:01:52.153762", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T17:01:57.480757", "level": "INFO", "message": "Auto-detected 123 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T17:01:58.783622", "level": "SUCCESS", "message": "PASS \u2014 123/123 keys verified"}
+{"timestamp": "2026-06-16T17:01:58.811543", "level": "SUCCESS", "message": "UPGRADE COMPLETE \u2014 all nodes on v7.2.6, data integrity verified"}
+{"timestamp": "2026-06-16T17:02:58.347683", "level": "INFO", "message": "Running command: ./redis-tool verify --full"}
+{"timestamp": "2026-06-16T17:02:58.358313", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:02:58.407826", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:02:59.776921", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:02:59.788465", "level": "HEADER", "message": "Running full cluster verification..."}
+{"timestamp": "2026-06-16T17:03:01.347528", "level": "INFO", "message": "1. Checking Data Integrity..."}
+{"timestamp": "2026-06-16T17:03:01.359814", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:03:01.383785", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:03:02.217082", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:03:02.227897", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T17:03:07.306937", "level": "INFO", "message": "Auto-detected 123 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T17:03:08.868582", "level": "SUCCESS", "message": "PASS \u2014 123/123 keys verified"}
+{"timestamp": "2026-06-16T17:03:08.880999", "level": "INFO", "message": "2. Checking Version Consistency..."}
+{"timestamp": "2026-06-16T17:03:16.164487", "level": "SUCCESS", "message": "PASS \u2014 All nodes running version 7.2.6"}
+{"timestamp": "2026-06-16T17:03:16.176241", "level": "INFO", "message": "3. Checking Topology Health..."}
+{"timestamp": "2026-06-16T17:03:16.199073", "level": "SUCCESS", "message": "PASS \u2014 Topology is healthy (16384 slots covered, all masters have replicas)"}
+{"timestamp": "2026-06-16T17:03:16.228995", "level": "INFO", "message": "4. Checking Cluster State..."}
+{"timestamp": "2026-06-16T17:03:17.119926", "level": "SUCCESS", "message": "PASS \u2014 Cluster state is ok"}
+{"timestamp": "2026-06-16T17:03:17.128671", "level": "INFO", "message": "5. Checking Replication Lag..."}
+{"timestamp": "2026-06-16T17:03:20.706906", "level": "SUCCESS", "message": "PASS \u2014 All replicas synced (master_link_status:up)"}
+{"timestamp": "2026-06-16T17:03:20.722637", "level": "SUCCESS", "message": "Full verification passed successfully!"}
+{"timestamp": "2026-06-16T17:03:42.099849", "level": "INFO", "message": "Running command: ./redis-tool scale --add-nodes 2"}
+{"timestamp": "2026-06-16T17:03:42.111864", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:03:42.129106", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:03:43.543646", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:03:43.555969", "level": "HEADER", "message": "Scaling out: Adding 2 nodes..."}
+{"timestamp": "2026-06-16T17:03:44.904922", "level": "INFO", "message": "Spinning up container redis-node-7 with IP 10.10.0.17..."}
+{"timestamp": "2026-06-16T17:03:48.851332", "level": "INFO", "message": "Spinning up container redis-node-8 with IP 10.10.0.18..."}
+{"timestamp": "2026-06-16T17:03:53.345055", "level": "SUCCESS", "message": "Inventory updated with new nodes."}
+{"timestamp": "2026-06-16T17:03:53.362942", "level": "INFO", "message": "Installing Redis on redis-node-7..."}
+{"timestamp": "2026-06-16T17:03:57.158781", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:04:00.139525", "level": "INFO", "message": "Executing playbook provision_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:06:24.945254", "level": "INFO", "message": "Meeting redis-node-7 (10.10.0.17) to the cluster..."}
+{"timestamp": "2026-06-16T17:06:26.091996", "level": "INFO", "message": "Installing Redis on redis-node-8..."}
+{"timestamp": "2026-06-16T17:06:28.794146", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:06:31.303037", "level": "INFO", "message": "Executing playbook provision_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:08:40.779713", "level": "INFO", "message": "Meeting redis-node-8 (10.10.0.18) to the cluster..."}
+{"timestamp": "2026-06-16T17:08:42.192239", "level": "INFO", "message": "Waiting 10 seconds for cluster meet gossip to propagate..."}
+{"timestamp": "2026-06-16T17:08:52.208405", "level": "INFO", "message": "Configuring replication: redis-node-8 (10.10.0.18) -> redis-node-7 (10.10.0.17)..."}
+{"timestamp": "2026-06-16T17:08:53.687965", "level": "INFO", "message": "Node ID for master redis-node-7 is 3c583e57a29c539bfbea62db884891f25507b3bb"}
+{"timestamp": "2026-06-16T17:08:55.145282", "level": "SUCCESS", "message": "Replica redis-node-8 is now replicating redis-node-7."}
+{"timestamp": "2026-06-16T17:08:55.154209", "level": "INFO", "message": "Waiting 5 seconds for replication topology to settle..."}
+{"timestamp": "2026-06-16T17:09:00.180107", "level": "INFO", "message": "Rebalancing cluster slots..."}
+{"timestamp": "2026-06-16T17:11:00.162647", "level": "SUCCESS", "message": "Scale out complete!"}
+{"timestamp": "2026-06-16T17:12:50.346049", "level": "INFO", "message": "Running command: ./redis-tool scale --remove-node redis-node-7"}
+{"timestamp": "2026-06-16T17:12:50.359182", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:12:50.384044", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:12:51.847645", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:12:51.858289", "level": "HEADER", "message": "Scaling in: Removing node redis-node-7..."}
+{"timestamp": "2026-06-16T17:12:53.358020", "level": "INFO", "message": "Identified master node: 10.10.0.17 (3c583e57a29c539bfbea62db884891f25507b3bb)"}
+{"timestamp": "2026-06-16T17:12:53.367485", "level": "INFO", "message": "Identified replica node: 10.10.0.18 (8ae86c5619eb15ba19550147a5483394b4118830)"}
+{"timestamp": "2026-06-16T17:12:53.398050", "level": "INFO", "message": "Master node 10.10.0.17 has 4096 slots to migrate."}
+{"timestamp": "2026-06-16T17:12:53.457480", "level": "INFO", "message": "Migrating 1365 slots from 10.10.0.17 to 10.10.0.16..."}
+{"timestamp": "2026-06-16T17:13:32.948687", "level": "SUCCESS", "message": "Migrated 1365 slots successfully."}
+{"timestamp": "2026-06-16T17:13:32.957831", "level": "INFO", "message": "Migrating 1365 slots from 10.10.0.17 to 10.10.0.15..."}
+{"timestamp": "2026-06-16T17:14:11.571645", "level": "SUCCESS", "message": "Migrated 1365 slots successfully."}
+{"timestamp": "2026-06-16T17:14:11.581424", "level": "INFO", "message": "Migrating 1366 slots from 10.10.0.17 to 10.10.0.14..."}
+{"timestamp": "2026-06-16T17:14:50.478239", "level": "SUCCESS", "message": "Migrated 1366 slots successfully."}
+{"timestamp": "2026-06-16T17:14:50.487960", "level": "INFO", "message": "Deleting replica node 10.10.0.18 from cluster..."}
+{"timestamp": "2026-06-16T17:14:51.755107", "level": "SUCCESS", "message": "Replica node deleted from cluster."}
+{"timestamp": "2026-06-16T17:14:51.766364", "level": "INFO", "message": "Deleting master node 10.10.0.17 from cluster..."}
+{"timestamp": "2026-06-16T17:14:52.892123", "level": "SUCCESS", "message": "Master node deleted from cluster."}
+{"timestamp": "2026-06-16T17:14:52.901187", "level": "INFO", "message": "Stopping and removing container redis-node-8..."}
+{"timestamp": "2026-06-16T17:14:55.380039", "level": "INFO", "message": "Removing redis-node-8 from inventory..."}
+{"timestamp": "2026-06-16T17:14:55.467372", "level": "SUCCESS", "message": "Removed redis-node-8 from hosts.ini."}
+{"timestamp": "2026-06-16T17:14:55.497492", "level": "INFO", "message": "Stopping and removing container redis-node-7..."}
+{"timestamp": "2026-06-16T17:14:58.863949", "level": "INFO", "message": "Removing redis-node-7 from inventory..."}
+{"timestamp": "2026-06-16T17:14:58.892842", "level": "SUCCESS", "message": "Removed redis-node-7 from hosts.ini."}
+{"timestamp": "2026-06-16T17:14:58.913089", "level": "SUCCESS", "message": "Scale in complete!"}
+{"timestamp": "2026-06-16T17:15:37.172969", "level": "INFO", "message": "Running command: ./redis-tool rollback --target-version 7.0.15"}
+{"timestamp": "2026-06-16T17:15:37.218344", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:15:37.249397", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:15:38.614809", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:15:38.626424", "level": "HEADER", "message": "Rolling back cluster version to 7.0.15..."}
+{"timestamp": "2026-06-16T17:15:38.644289", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:15:38.666297", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:15:40.219938", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:15:40.230503", "level": "HEADER", "message": "Starting rolling upgrade to version 7.0.15..."}
+{"timestamp": "2026-06-16T17:15:40.257458", "level": "INFO", "message": "Step 1: Running pre-flight checks..."}
+{"timestamp": "2026-06-16T17:15:55.478048", "level": "INFO", "message": "Rollback/downgrade detected. Replication sync check will be skipped on replicas until master nodes are also downgraded."}
+{"timestamp": "2026-06-16T17:15:55.652556", "level": "INFO", "message": "Establishing pre-upgrade data baseline..."}
+{"timestamp": "2026-06-16T17:15:55.795045", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:15:55.829390", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:15:57.623030", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:15:57.637846", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T17:16:03.221327", "level": "INFO", "message": "Auto-detected 123 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T17:16:04.952402", "level": "SUCCESS", "message": "PASS \u2014 123/123 keys verified"}
+{"timestamp": "2026-06-16T17:16:04.997822", "level": "INFO", "message": "Backing up cluster data before rollback..."}
+{"timestamp": "2026-06-16T17:16:10.723804", "level": "SUCCESS", "message": "Successfully backed up 123 keys."}
+{"timestamp": "2026-06-16T17:16:10.753062", "level": "SUCCESS", "message": "Backup saved to logs/rollback_backup.json"}
+{"timestamp": "2026-06-16T17:16:10.764873", "level": "SUCCESS", "message": "Pre-flight checks passed."}
+{"timestamp": "2026-06-16T17:16:11.991971", "level": "INFO", "message": "[1/6] Upgrading replica 10.10.0.13 (redis-node-3)..."}
+{"timestamp": "2026-06-16T17:16:13.963649", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:16:16.767340", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:17:28.622027", "level": "SUCCESS", "message": "[1/6] Upgraded replica 10.10.0.13 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:17:29.847729", "level": "INFO", "message": "[2/6] Upgrading replica 10.10.0.11 (redis-node-1)..."}
+{"timestamp": "2026-06-16T17:17:32.349022", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:17:35.149779", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:18:41.396403", "level": "SUCCESS", "message": "[2/6] Upgraded replica 10.10.0.11 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:18:42.701562", "level": "INFO", "message": "[3/6] Upgrading replica 10.10.0.12 (redis-node-2)..."}
+{"timestamp": "2026-06-16T17:18:44.567534", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:18:47.389192", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:19:55.950722", "level": "SUCCESS", "message": "[3/6] Upgraded replica 10.10.0.12 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:19:57.197838", "level": "INFO", "message": "Promoting replica 10.10.0.12 (redis-node-2) to master..."}
+{"timestamp": "2026-06-16T17:19:58.816181", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:20:01.556801", "level": "INFO", "message": "Executing playbook failover.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:20:05.507946", "level": "SUCCESS", "message": "Failover complete. Former replica 10.10.0.12 is now master."}
+{"timestamp": "2026-06-16T17:20:05.518330", "level": "INFO", "message": "[4/6] Upgrading former master 10.10.0.16 (redis-node-6)..."}
+{"timestamp": "2026-06-16T17:20:07.219227", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:20:09.979683", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:21:17.165872", "level": "SUCCESS", "message": "[4/6] Upgraded former master 10.10.0.16 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:21:18.571726", "level": "INFO", "message": "Promoting replica 10.10.0.11 (redis-node-1) to master..."}
+{"timestamp": "2026-06-16T17:21:20.258852", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:21:23.404230", "level": "INFO", "message": "Executing playbook failover.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:21:28.563157", "level": "SUCCESS", "message": "Failover complete. Former replica 10.10.0.11 is now master."}
+{"timestamp": "2026-06-16T17:21:28.573403", "level": "INFO", "message": "[5/6] Upgrading former master 10.10.0.15 (redis-node-5)..."}
+{"timestamp": "2026-06-16T17:21:30.108001", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:21:33.029390", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:22:52.412838", "level": "SUCCESS", "message": "[5/6] Upgraded former master 10.10.0.15 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:22:53.978167", "level": "INFO", "message": "Promoting replica 10.10.0.13 (redis-node-3) to master..."}
+{"timestamp": "2026-06-16T17:22:55.724876", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:22:59.212904", "level": "INFO", "message": "Executing playbook failover.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:23:03.544588", "level": "SUCCESS", "message": "Failover complete. Former replica 10.10.0.13 is now master."}
+{"timestamp": "2026-06-16T17:23:03.554977", "level": "INFO", "message": "[6/6] Upgrading former master 10.10.0.14 (redis-node-4)..."}
+{"timestamp": "2026-06-16T17:23:05.266681", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:23:07.802905", "level": "INFO", "message": "Executing playbook upgrade_node.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:24:15.770149", "level": "SUCCESS", "message": "[6/6] Upgraded former master 10.10.0.14 \u2014 cluster: ok"}
+{"timestamp": "2026-06-16T17:24:15.779987", "level": "INFO", "message": "Restoring 123 keys to the cluster..."}
+{"timestamp": "2026-06-16T17:24:17.194155", "level": "SUCCESS", "message": "Restore completed."}
+{"timestamp": "2026-06-16T17:24:17.202647", "level": "INFO", "message": "Step 4: Running post-upgrade verification..."}
+{"timestamp": "2026-06-16T17:24:17.232319", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:24:17.263654", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:24:18.235365", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:24:18.245281", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T17:24:23.568337", "level": "INFO", "message": "Auto-detected 123 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T17:24:25.030691", "level": "SUCCESS", "message": "PASS \u2014 123/123 keys verified"}
+{"timestamp": "2026-06-16T17:24:25.043251", "level": "SUCCESS", "message": "UPGRADE COMPLETE \u2014 all nodes on v7.0.15, data integrity verified"}
+{"timestamp": "2026-06-16T17:27:33.336003", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1"}
+{"timestamp": "2026-06-16T17:27:33.366435", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T17:27:33.406800", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T17:27:34.723135", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:27:34.735676", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:27:36.095176", "level": "INFO", "message": "Starting container infrastructure..."}
+{"timestamp": "2026-06-16T17:28:21.764569", "level": "SUCCESS", "message": "Container infrastructure is running"}
+{"timestamp": "2026-06-16T17:28:33.300419", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T17:28:34.614716", "level": "INFO", "message": "Building runner image (this may take a moment)..."}
+{"timestamp": "2026-06-16T17:32:29.053803", "level": "INFO", "message": "Executing playbook provision.yml inside runner container..."}
+{"timestamp": "2026-06-16T17:40:10.784972", "level": "SUCCESS", "message": "Cluster provisioned successfully!"}
+{"timestamp": "2026-06-16T17:40:53.576119", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T17:41:32.600181", "level": "INFO", "message": "Running command: ./redis-tool data seed --keys 433"}
+{"timestamp": "2026-06-16T17:41:32.613350", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:41:32.632990", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:41:33.859633", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:41:33.870674", "level": "INFO", "message": "Flushing existing data from master nodes..."}
+{"timestamp": "2026-06-16T17:41:38.942045", "level": "INFO", "message": "Seeding 433 keys into cluster..."}
+{"timestamp": "2026-06-16T17:41:41.794756", "level": "SUCCESS", "message": "Seeding summary:"}
+{"timestamp": "2026-06-16T17:42:15.187905", "level": "INFO", "message": "Running command: ./redis-tool data verify"}
+{"timestamp": "2026-06-16T17:42:15.205935", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T17:42:15.233639", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T17:42:16.501405", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T17:42:16.517809", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T17:42:22.026944", "level": "INFO", "message": "Auto-detected 433 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T17:42:23.701891", "level": "SUCCESS", "message": "PASS \u2014 433/433 keys verified"}
+{"timestamp": "2026-06-16T21:54:25.605281", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T21:54:39.014711", "level": "ERROR", "message": "Could not retrieve cluster topology. Is the cluster provisioned and running?"}
+{"timestamp": "2026-06-16T21:58:11.759351", "level": "INFO", "message": "Running command: ./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1"}
+{"timestamp": "2026-06-16T21:58:11.767137", "level": "INFO", "message": "Cleaning up any extra/scaled nodes..."}
+{"timestamp": "2026-06-16T21:58:11.850187", "level": "SUCCESS", "message": "Inventory reset to default 6 nodes."}
+{"timestamp": "2026-06-16T21:58:12.912343", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T21:58:12.934061", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T21:58:14.552381", "level": "INFO", "message": "Starting container infrastructure..."}
+{"timestamp": "2026-06-16T21:58:34.886417", "level": "SUCCESS", "message": "Container infrastructure is running"}
+{"timestamp": "2026-06-16T21:58:48.102810", "level": "INFO", "message": "Verifying runner image..."}
+{"timestamp": "2026-06-16T21:58:52.136145", "level": "INFO", "message": "Executing playbook provision.yml inside runner container..."}
+{"timestamp": "2026-06-16T21:59:32.175043", "level": "SUCCESS", "message": "Cluster provisioned successfully!"}
+{"timestamp": "2026-06-16T22:00:13.044515", "level": "INFO", "message": "Running command: ./redis-tool status"}
+{"timestamp": "2026-06-16T22:00:51.216487", "level": "INFO", "message": "Running command: ./redis-tool data seed --keys 324"}
+{"timestamp": "2026-06-16T22:00:51.232218", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T22:00:51.262739", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T22:00:52.524842", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T22:00:52.540369", "level": "INFO", "message": "Flushing existing data from master nodes..."}
+{"timestamp": "2026-06-16T22:00:58.256100", "level": "INFO", "message": "Seeding 324 keys into cluster..."}
+{"timestamp": "2026-06-16T22:01:01.060442", "level": "SUCCESS", "message": "Seeding summary:"}
+{"timestamp": "2026-06-16T22:01:28.072235", "level": "INFO", "message": "Running command: ./redis-tool data verify"}
+{"timestamp": "2026-06-16T22:01:28.111244", "level": "INFO", "message": "SSH keys already present in ansible/ssh"}
+{"timestamp": "2026-06-16T22:01:28.123098", "level": "INFO", "message": "Verifying container infrastructure..."}
+{"timestamp": "2026-06-16T22:01:29.149782", "level": "INFO", "message": "All containers are already running"}
+{"timestamp": "2026-06-16T22:01:29.167242", "level": "INFO", "message": "Verifying data integrity..."}
+{"timestamp": "2026-06-16T22:01:35.119756", "level": "INFO", "message": "Auto-detected 324 keys in the cluster for verification"}
+{"timestamp": "2026-06-16T22:01:36.571397", "level": "SUCCESS", "message": "PASS \u2014 324/324 keys verified"}
+{"timestamp": "2026-06-16T22:01:45.271984", "level": "INFO", "message": "Running command: ./redis-tool status"}

@@ -1,0 +1,47 @@
+---
+- name: Install and configure Redis on all nodes
+  hosts: redis_nodes
+  pre_tasks:
+    - name: Stop Redis server if running
+      command: redis-cli -p 6379 shutdown
+      ignore_errors: yes
+      become: yes
+
+    - name: Kill lingering redis-server processes
+      command: pkill -9 redis-server
+      ignore_errors: yes
+      become: yes
+
+    - name: Clean Redis data directory for fresh provision
+      file:
+        path: /var/lib/redis
+        state: absent
+      become: yes
+  roles:
+    - redis
+
+- name: Form Redis Cluster
+  hosts: redis-node-1
+  tasks:
+    - name: Check cluster status
+      command: redis-cli -p 6379 cluster info
+      register: cluster_info_check
+      ignore_errors: true
+      changed_when: false
+
+    - name: Form cluster if not already healthy
+      command: >
+        redis-cli --cluster create
+        10.10.0.11:6379 10.10.0.12:6379 10.10.0.13:6379
+        10.10.0.14:6379 10.10.0.15:6379 10.10.0.16:6379
+        --cluster-replicas 1 --cluster-yes
+      when: cluster_info_check.rc != 0 or "cluster_state:ok" not in cluster_info_check.stdout
+
+    - name: Get final cluster topology
+      command: redis-cli -p 6379 cluster nodes
+      register: final_topology
+      changed_when: false
+
+    - name: Show final cluster topology
+      debug:
+        msg: "{{ final_topology.stdout_lines }}"

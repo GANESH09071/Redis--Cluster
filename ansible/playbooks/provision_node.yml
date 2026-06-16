@@ -1,0 +1,22 @@
+---
+- name: Provision Redis on a single node
+  hosts: "{{ target_host }}"
+  gather_facts: no
+  pre_tasks:
+    - name: Stop Redis server if running
+      command: redis-cli -p 6379 shutdown
+      ignore_errors: yes
+      become: yes
+
+    - name: Kill lingering redis-server processes
+      command: pkill -9 redis-server
+      ignore_errors: yes
+      become: yes
+
+    - name: Clean Redis data directory for fresh provision
+      file:
+        path: /var/lib/redis
+        state: absent
+      become: yes
+  roles:
+    - redis

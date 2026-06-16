@@ -1,0 +1,10 @@
+✓ Podman 5.7.0 found
+✓ Ansible 2.21.0 found
+Proceeding...
+[INFO] Running command: ./redis-tool data verify
+[INFO] SSH keys already present in ansible/ssh
+[INFO] Verifying container infrastructure...
+[INFO] All containers are already running
+[INFO] Verifying data integrity...
+[INFO] Auto-detected 324 keys in the cluster for verification
+[SUCCESS] PASS — 324/324 keys verified

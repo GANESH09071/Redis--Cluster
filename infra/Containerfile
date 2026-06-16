@@ -1,0 +1,40 @@
+FROM ubuntu:22.04
+
+# Avoid prompts during apt install
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies: ssh, python3 (for ansible), sudo, and build tools for Redis
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    python3 \
+    python3-pip \
+    sudo \
+    curl \
+    build-essential \
+    pkg-config \
+    iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure SSH
+RUN mkdir /var/run/sshd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+# Create 'ansible' user
+RUN useradd -m -s /bin/bash ansible && \
+    echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Create directory for SSH keys
+RUN mkdir -p /home/ansible/.ssh && \
+    chown ansible:ansible /home/ansible/.ssh && \
+    chmod 700 /home/ansible/.ssh
+
+# Expose SSH port
+EXPOSE 22
+
+# Entrypoint script to inject the SSH public key from a mounted volume
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/usr/sbin/sshd", "-D"]

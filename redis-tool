@@ -1,0 +1,1477 @@
+#!/usr/bin/env python3
+import os
+import sys
+import time
+import argparse
+import subprocess
+import shutil
+import re
+import json
+import hashlib
+from datetime import datetime
+import atexit
+
+class Tee:
+    def __init__(self, shared_file, original_stream):
+        self.file = shared_file
+        self.original_stream = original_stream
+
+    def write(self, data):
+        # Write to the file (strip ANSI color codes to keep file output clean)
+        clean_data = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', data)
+        try:
+            self.file.write(clean_data)
+        except Exception:
+            pass
+        # Write to the console
+        self.original_stream.write(data)
+
+    def flush(self):
+        try:
+            self.file.flush()
+        except Exception:
+            pass
+        self.original_stream.flush()
+
+    def close(self):
+        if self.file:
+            try:
+                self.file.close()
+            except Exception:
+                pass
+            self.file = None
+
+    def __getattr__(self, attr):
+        return getattr(self.original_stream, attr)
+
+# Store Tee instances to close them on exit
+_tees = []
+
+def cleanup_tees():
+    for tee in _tees:
+        tee.close()
+
+atexit.register(cleanup_tees)
+
+def setup_output_redirection(command_name, subcommand_name=None):
+    filename = None
+    if command_name == "provision":
+        filename = "output/provision_output.txt"
+    elif command_name == "data":
+        if subcommand_name == "seed":
+            filename = "output/data_seed_output.txt"
+        elif subcommand_name == "verify":
+            filename = "output/verify_output.txt"
+    elif command_name == "status":
+        filename = "output/status_output.txt"
+    elif command_name == "verify":
+        filename = "output/verify_output.txt"
+    elif command_name == "upgrade":
+        filename = "output/upgrade_output.txt"
+    elif command_name == "rollback":
+        filename = "output/upgrade_output.txt"
+        
+    if filename:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        shared_file = open(filename, "w", encoding="utf-8")
+        
+        stdout_tee = Tee(shared_file, sys.stdout)
+        stderr_tee = Tee(shared_file, sys.stderr)
+        
+        sys.stdout = stdout_tee
+        sys.stderr = stderr_tee
+        
+        _tees.append(stdout_tee)
+        _tees.append(stderr_tee)
+
+
+# Node IP mapping to container name loaded dynamically from hosts.ini
+def load_ip_to_container_mapping():
+    mapping = {}
+    try:
+        hosts_file = 'ansible/inventory/hosts.ini'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        hosts_path = os.path.join(script_dir, hosts_file)
+        if os.path.exists(hosts_path):
+            with open(hosts_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('[') or line.startswith('#'):
+                        continue
+                    # Match pattern: <container_name> ansible_host=<ip>
+                    match = re.match(r'^([^\s]+)\s+ansible_host=([\d\.]+)', line)
+                    if match:
+                        container_name, ip = match.groups()
+                        mapping[ip] = container_name
+    except Exception:
+        pass
+    
+    # Fallback to default 6 nodes if hosts.ini is not yet updated or not found
+    defaults = {
+        '10.10.0.11': 'redis-node-1',
+        '10.10.0.12': 'redis-node-2',
+        '10.10.0.13': 'redis-node-3',
+        '10.10.0.14': 'redis-node-4',
+        '10.10.0.15': 'redis-node-5',
+        '10.10.0.16': 'redis-node-6'
+    }
+    for ip, container in defaults.items():
+        if ip not in mapping:
+            mapping[ip] = container
+    return mapping
+
+IP_TO_CONTAINER = load_ip_to_container_mapping()
+CONTAINER_TO_IP = {v: k for k, v in IP_TO_CONTAINER.items()}
+
+
+def log(message, level="INFO"):
+    timestamp = datetime.now().isoformat()
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Write to structured JSON log
+    log_entry = {
+        "timestamp": timestamp,
+        "level": level,
+        "message": message
+    }
+    with open(os.path.join(log_dir, "operation.json"), "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+        
+    # Write to text log
+    with open(os.path.join(log_dir, "operation.log"), "a") as f:
+        f.write(f"[{timestamp}] [{level}] {message}\n")
+
+    if level == "HEADER":
+        level = "STG"
+    
+    print(f"[{level}] {message}")
+
+def run_command(cmd, cwd=None, env=None, capture=True):
+    try:
+        if not capture:
+            p = subprocess.Popen(
+                cmd,
+                cwd=cwd,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+            stdout_lines = []
+            for line in p.stdout:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+                stdout_lines.append(line)
+            p.wait()
+            combined_output = "".join(stdout_lines)
+            return p.returncode, combined_output, combined_output
+        else:
+            res = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
+            return res.returncode, res.stdout, res.stderr
+    except Exception as e:
+        return -1, "", str(e)
+
+def find_container_runtime():
+    # Priority: podman, podman.exe, docker, docker.exe
+    candidates = ['podman', 'podman.exe', 'docker', 'docker.exe']
+    extra_paths = [
+        "/mnt/c/Program Files/Docker/Docker/resources/bin",
+        "/mnt/c/Program Files/RedHat/Podman"
+    ]
+    for cmd in candidates:
+        cmd_path = shutil.which(cmd)
+        if not cmd_path:
+            for p in extra_paths:
+                full_path = os.path.join(p, cmd)
+                if os.path.exists(full_path):
+                    cmd_path = full_path
+                    break
+        if cmd_path:
+            # Verify if it actually runs successfully and can connect to daemon
+            rc, stdout, _ = run_command([cmd_path, 'info'])
+            if rc == 0:
+                # Extract version
+                rc_ver, stdout_ver, _ = run_command([cmd_path, '--version'])
+                version_match = re.search(r'\d+\.\d+\.\d+', stdout_ver)
+                version = version_match.group(0) if version_match else "unknown"
+                return cmd_path, version
+    return None, None
+
+def check_ansible():
+    if not shutil.which('ansible-playbook'):
+        return False, None
+    rc, stdout, _ = run_command(['ansible-playbook', '--version'])
+    if rc == 0:
+        # Extract version from first line or core version
+        # e.g., "ansible-playbook [core 2.16.4]"
+        version_match = re.search(r'core\s+(\d+\.\d+\.\d+)', stdout)
+        if not version_match:
+            version_match = re.search(r'(\d+\.\d+\.\d+)', stdout)
+        version = version_match.group(1) if version_match else "unknown"
+        return True, version
+    return False, None
+
+def prerequisite_check():
+    runtime, runtime_ver = find_container_runtime()
+    ansible_ok, ansible_ver = check_ansible()
+    
+    errors = []
+    if not runtime:
+        errors.append(
+            "✗ Container runtime not found (Docker or Podman)\n"
+            "  Install Podman: https://podman.io/docs/installation\n"
+            "  Install Docker: https://docs.docker.com/engine/install/"
+        )
+    else:
+        name = "Podman" if "podman" in runtime else "Docker"
+        print(f"✓ {name} {runtime_ver} found")
+        if name == "Podman" and (os.name != 'nt' and sys.platform != 'win32'):
+            rc_rl, stdout_rl, _ = run_command([runtime, 'info', '--format', '{{.Security.Rootless}}'])
+            if rc_rl == 0 and stdout_rl.strip().lower() == 'true':
+                if os.path.exists('/run/systemd/system'):
+                    uid = os.getuid()
+                    user_bus = f"/run/user/{uid}/bus"
+                    if not os.path.exists(user_bus):
+                        errors.append(
+                            f"✗ Rootless Podman requires a running systemd user session bus ({user_bus}), which was not found.\n"
+                            f"  To resolve this permanently, please run the following commands on the host:\n"
+                            f"    1. Enable user lingering: sudo loginctl enable-linger $USER\n"
+                            f"    2. Restart your session or WSL instance (e.g. 'wsl --shutdown' from Windows)\n"
+                            f"    3. Re-login or reopen your shell to initialize the session"
+                        )
+        
+    if not ansible_ok:
+        errors.append(
+            "✗ Ansible not found\n"
+            "  Install: pip install ansible (or use your OS package manager)"
+        )
+    else:
+        # Check if version is >= 2.14
+        ver_parts = [int(x) for x in ansible_ver.split('.')]
+        if ver_parts[0] < 2 or (ver_parts[0] == 2 and ver_parts[1] < 14):
+            errors.append(f"✗ Ansible version {ansible_ver} found, but 2.14+ is required.")
+        else:
+            print(f"✓ Ansible {ansible_ver} found")
+            
+    if errors:
+        for err in errors:
+            print(err, file=sys.stderr)
+        print("Please install the missing dependencies and retry.", file=sys.stderr)
+        sys.exit(1)
+        
+    print("Proceeding...")
+    return runtime
+
+def ensure_ssh_keys():
+    ssh_dir = os.path.abspath("ansible/ssh")
+    os.makedirs(ssh_dir, exist_ok=True)
+    private_key = os.path.join(ssh_dir, "id_rsa")
+    if not os.path.exists(private_key):
+        log("Generating SSH key pair in ansible/ssh/id_rsa...", "INFO")
+        rc, _, stderr = run_command(['ssh-keygen', '-t', 'rsa', '-b', '2048', '-f', private_key, '-N', ''])
+        if rc != 0:
+            log(f"Failed to generate SSH keys: {stderr}", "ERROR")
+            sys.exit(1)
+        # Ensure correct permissions
+        
+    else:
+        log("SSH keys already present in ansible/ssh", "INFO")
+        os.chmod(private_key, 0o600)
+
+def run_compose_cmd(runtime, args):
+    if 'podman' in runtime:
+        if shutil.which('podman-compose'):
+            cmd = ['podman-compose', '-f', 'infra/compose.yml'] + args
+        else:
+            cmd = [runtime, 'compose', '-f', 'infra/compose.yml'] + args
+    else:
+        cmd = [runtime, 'compose', '-f', 'infra/compose.yml'] + args
+    return run_command(cmd, capture=False)
+
+def get_container_network(runtime, container_name="redis-node-1"):
+    rc, stdout, _ = run_command([runtime, 'inspect', container_name, '--format', '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}'])
+    if rc == 0 and stdout.strip():
+        return stdout.strip()
+    return 'redis-net'
+
+def get_container_image(runtime, container_name="redis-node-1"):
+    rc, stdout, _ = run_command([runtime, 'inspect', container_name, '--format', '{{.Config.Image}}'])
+    if rc == 0 and stdout.strip():
+        return stdout.strip()
+    rc, stdout, _ = run_command([runtime, 'inspect', container_name, '--format', '{{.ImageName}}'])
+    if rc == 0 and stdout.strip():
+        return stdout.strip()
+    return 'redis-node-base:latest'
+
+def ensure_containers_running(runtime):
+    ensure_ssh_keys()
+    log("Verifying container infrastructure...", "INFO")
+    # Check if all containers are running
+    # If not, build and start them
+    rc, stdout, _ = run_command([runtime, 'ps', '--filter', 'name=redis-node-', '--format', '{{.Names}}'])
+    running_containers = stdout.strip().split()
+    expected_containers = list(IP_TO_CONTAINER.values())
+    
+    if len(running_containers) < len(expected_containers):
+        log("Starting container infrastructure...", "INFO")
+        rc, stdout, stderr = run_compose_cmd(runtime, ['up', '-d', '--build'])
+        if rc != 0:
+            log("Failed to start container infrastructure. Is Docker Desktop running?", "ERROR")
+            combined = (stdout or "") + (stderr or "")
+            if "user scope bus" in combined or "user.slice" in combined:
+                log("Detected rootless Podman systemd user session bus error.", "ERROR")
+                log("To fix this permanently, please run:", "ERROR")
+                log("  sudo loginctl enable-linger $USER", "ERROR")
+                log("And restart WSL or your session.", "ERROR")
+            sys.exit(1)
+        log("Container infrastructure is running", "SUCCESS")
+    else:
+        log("All containers are already running", "INFO")
+
+def ensure_runner_image(runtime):
+    log("Verifying runner image...", "INFO")
+    rc, stdout, _ = run_command([runtime, 'images', '-q', 'redis-tool-runner'])
+    if not stdout.strip() or rc != 0:
+        log("Building runner image (this may take a moment)...", "INFO")
+        rc, _, stderr = run_command([
+            runtime, 'build', '-t', 'redis-tool-runner',
+            '-f', 'infra/Containerfile.runner', 'infra'
+        ], capture=False)
+        if rc != 0:
+            log(f"Failed to build runner image: {stderr}", "ERROR")
+            sys.exit(1)
+        
+
+def run_playbook(playbook, extra_vars=None):
+    in_container = os.path.exists('/.dockerenv') or os.environ.get('REDIS_TOOL_CONTAINER') == '1'
+    
+    if in_container:
+        env = os.environ.copy()
+        env['ANSIBLE_CONFIG'] = os.path.abspath('ansible/ansible.cfg')
+        cmd = ['ansible-playbook', '-i', 'inventory/hosts.ini', f'playbooks/{playbook}']
+        if extra_vars:
+            cmd.extend(['--extra-vars', json.dumps(extra_vars)])
+        
+        log(f"Executing playbook {playbook}...", "INFO")
+        rc, stdout, stderr = run_command(cmd, cwd='ansible', env=env, capture=False)
+        if rc != 0:
+            log(f"Playbook {playbook} failed!", "ERROR")
+            return False
+        return True
+    else:
+        runtime, _ = find_container_runtime()
+        if not runtime:
+            log("Container runtime not found to run playbook container.", "ERROR")
+            return False
+            
+        ensure_runner_image(runtime)
+        
+        host_workspace = os.getcwd()
+        
+        playbook_cmd = f"export ANSIBLE_CONFIG=/workspace/ansible/ansible.cfg && cp ssh/id_rsa /tmp/id_rsa && chmod 600 /tmp/id_rsa && ansible-playbook -i inventory/hosts.ini playbooks/{playbook} --private-key=/tmp/id_rsa"
+        if extra_vars:
+            playbook_cmd += f" --extra-vars '{json.dumps(extra_vars)}'"
+            
+        network_name = get_container_network(runtime)
+        cmd = [
+            runtime, 'run', '--rm',
+            '--network', network_name,
+            '-v', f"{host_workspace}:/workspace",
+            '-w', '/workspace/ansible',
+            '-e', 'REDIS_TOOL_CONTAINER=1',
+            'redis-tool-runner',
+            'bash', '-c', playbook_cmd
+        ]
+        
+        log(f"Executing playbook {playbook} inside runner container...", "INFO")
+        rc, stdout, stderr = run_command(cmd, capture=False)
+        if rc != 0:
+            log(f"Playbook {playbook} inside container failed!", "ERROR")
+            return False
+        return True
+
+def exec_redis_cmd(runtime, container, cmd_list):
+    full_cmd = [runtime, 'exec', '-i', container] + cmd_list
+    rc, stdout, stderr = run_command(full_cmd)
+    return rc, stdout, stderr
+
+def get_cluster_topology(runtime):
+    # Try querying cluster nodes from any of the nodes
+    for container in IP_TO_CONTAINER.values():
+        rc, stdout, _ = exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'cluster', 'nodes'])
+        if rc == 0 and stdout.strip():
+            return parse_cluster_nodes(stdout)
+    return None
+
+def parse_cluster_nodes(nodes_output):
+    nodes = []
+    for line in nodes_output.strip().split('\n'):
+        if not line:
+            continue
+        parts = line.split()
+        if len(parts) < 8:
+            continue
+        node_id = parts[0]
+        addr = parts[1].split('@')[0]
+        ip, port = addr.split(':')
+        flags = parts[2].split(',')
+        
+        role = 'master' if 'master' in flags else 'replica' if ('slave' in flags or 'replica' in flags) else 'unknown'
+        master_id = parts[3] if role == 'replica' else None
+        link_state = parts[7]
+        
+        slots = []
+        if role == 'master' and len(parts) > 8:
+            for s in parts[8:]:
+                if '-' in s:
+                    start, end = s.split('-')
+                    slots.append((int(start), int(end)))
+                elif s.isdigit():
+                    slots.append((int(s), int(s)))
+        
+        nodes.append({
+            'id': node_id,
+            'ip': ip,
+            'port': port,
+            'role': role,
+            'master_id': master_id,
+            'link_state': link_state,
+            'slots': slots
+        })
+    return nodes
+
+def get_node_details(runtime, container):
+    # Returns (version, memory, keys)
+    rc, stdout, _ = exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'info'])
+    if rc != 0:
+        return 'unknown', 'unknown', 0
+    
+    info = {}
+    for line in stdout.splitlines():
+        if ':' in line:
+            key, val = line.strip().split(':', 1)
+            info[key] = val
+            
+    version = info.get('redis_version', 'unknown')
+    memory = info.get('used_memory_human', 'unknown')
+    
+    keys = 0
+    db0 = info.get('db0')
+    if db0:
+        match = re.search(r'keys=(\d+)', db0)
+        if match:
+            keys = int(match.group(1))
+            
+    return version, memory, keys
+
+def show_status(runtime):
+    topology = get_cluster_topology(runtime)
+    if not topology:
+        log("Could not retrieve cluster topology. Is the cluster provisioned and running?", "ERROR")
+        return False
+        
+    print("\nCluster State: ok\n")
+    
+    print("MASTERS")
+    masters = [n for n in topology if n['role'] == 'master']
+    for m in masters:
+        container = IP_TO_CONTAINER.get(m['ip'], 'unknown')
+        version, memory, keys = get_node_details(runtime, container)
+        slots_str = ",".join([f"{s[0]}-{s[1]}" for s in m['slots']])
+        print(f" {m['ip']}:{m['port']} [{m['role']}] v{version} slots: {slots_str} keys: {keys} mem: {memory}")
+        
+    print("\nREPLICAS")
+    replicas = [n for n in topology if n['role'] == 'replica']
+    for r in replicas:
+        container = IP_TO_CONTAINER.get(r['ip'], 'unknown')
+        version, memory, _ = get_node_details(runtime, container)
+        # Find master IP
+        master_ip = next((m['ip'] for m in masters if m['id'] == r['master_id']), 'unknown')
+        print(f" {r['ip']}:{r['port']} [{r['role']}] v{version} replicating: {master_ip}:{r['port']} mem: {memory}")
+    print()
+    return True
+
+def cleanup_extra_nodes(runtime):
+    log("Cleaning up any extra/scaled nodes...", "INFO")
+    # Reset inventory
+    default_hosts = (
+        "[redis_nodes]\n"
+        "redis-node-1 ansible_host=10.10.0.11\n"
+        "redis-node-2 ansible_host=10.10.0.12\n"
+        "redis-node-3 ansible_host=10.10.0.13\n"
+        "redis-node-4 ansible_host=10.10.0.14\n"
+        "redis-node-5 ansible_host=10.10.0.15\n"
+        "redis-node-6 ansible_host=10.10.0.16\n\n"
+        "[redis_nodes:vars]\n"
+        "ansible_user=ansible\n"
+        "ansible_ssh_common_args='-o StrictHostKeyChecking=no'\n"
+    )
+    try:
+        with open('ansible/inventory/hosts.ini', 'w') as f:
+            f.write(default_hosts)
+        log("Inventory reset to default 6 nodes.", "SUCCESS")
+    except Exception as e:
+        log(f"Failed to reset inventory: {e}", "WARNING")
+    
+    # Check for extra containers (redis-node-7, redis-node-8, etc.) and stop/remove them
+    rc, stdout, _ = run_command([runtime, 'ps', '-a', '--filter', 'name=redis-node-', '--format', '{{.Names}}'])
+    if rc == 0:
+        containers = stdout.strip().split()
+        for container in containers:
+            match = re.search(r'redis-node-(\d+)', container)
+            if match:
+                num = int(match.group(1))
+                if num > 6:
+                    log(f"Removing extra container: {container}", "INFO")
+                    run_command([runtime, 'stop', container])
+                    run_command([runtime, 'rm', container])
+
+def cmd_provision(runtime, args):
+    cleanup_extra_nodes(runtime)
+    ensure_containers_running(runtime)
+    
+    # Idempotency check: if cluster is already provisioned and running the requested version, exit early (no-op)
+    topology = get_cluster_topology(runtime)
+    if topology:
+        all_match = True
+        for n in topology:
+            container = IP_TO_CONTAINER.get(n['ip'])
+            if container:
+                ver, _, _ = get_node_details(runtime, container)
+                if ver != args.version:
+                    all_match = False
+                    break
+            else:
+                all_match = False
+                break
+        if all_match:
+            log(f"Cluster is already provisioned on version {args.version}. Nothing to do.", "SUCCESS")
+            show_status(runtime)
+            return
+            
+    success = run_playbook('provision.yml', {
+        'redis_version': args.version
+    })
+    if success:
+        log("Cluster provisioned successfully!", "SUCCESS")
+        show_status(runtime)
+    else:
+        log("Provisioning failed.", "ERROR")
+        sys.exit(1)
+
+def cmd_seed(runtime, args):
+    ensure_containers_running(runtime)
+    
+    # Flush all masters first to clear any existing data
+    log("Flushing existing data from master nodes...", "INFO")
+    topology = get_cluster_topology(runtime)
+    if topology:
+        for node in topology:
+            if node['role'] == 'master':
+                container = IP_TO_CONTAINER.get(node['ip'])
+                if container:
+                    exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'FLUSHALL'])
+                    
+    log(f"Seeding {args.keys} keys into cluster...", "INFO")
+    
+    commands = []
+    for i in range(1, args.keys + 1):
+        key = f"key:{i:04d}"
+        value = hashlib.sha256(key.encode()).hexdigest()
+        commands.append(f"SET {key} {value}")
+        
+    commands_str = "\n".join(commands) + "\n"
+    
+    # Run redis-cli -c inside redis-node-1 to check connection
+    rc, stdout, stderr = exec_redis_cmd(runtime, 'redis-node-1', ['redis-cli', '-c', '-p', '6379', 'ping'])
+    if rc != 0:
+        log(f"Failed to connect to cluster: {stderr}", "ERROR")
+        sys.exit(1)
+
+        
+    # Write directly via stdin process redirection
+    full_cmd = [runtime, 'exec', '-i', 'redis-node-1', 'redis-cli', '-c', '-p', '6379']
+    p = subprocess.Popen(full_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = p.communicate(input=commands_str)
+    
+    # Parse output to calculate distribution
+    distribution = {ip: 0 for ip in IP_TO_CONTAINER.keys()}
+    lines = stdout.splitlines()
+    
+    current_node_ip = '10.10.0.11'
+    idx = 0
+    failures = 0
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith('-> Redirected'):
+            # Extract IP from redirection
+            match = re.search(r'located at ([\d\.]+):', line)
+            if match:
+                current_node_ip = match.group(1)
+        elif line == 'OK':
+            distribution[current_node_ip] = distribution.get(current_node_ip, 0) + 1
+            idx += 1
+        elif 'ERR' in line or 'error' in line.lower():
+            failures += 1
+            idx += 1
+            
+    log("Seeding summary:", "SUCCESS")
+    print(f"Total keys inserted: {idx - failures}")
+    print(f"Failures: {failures}")
+    print("Distribution across masters:")
+    for ip, count in distribution.items():
+        # Only print for masters
+        container = IP_TO_CONTAINER[ip]
+        rc, role_check, _ = exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'role'])
+        if 'master' in role_check:
+            print(f" - {ip}: {count} keys")
+
+def get_total_keys_in_cluster(runtime):
+    topology = get_cluster_topology(runtime)
+    if not topology:
+        return 0
+    total_keys = 0
+    for node in topology:
+        if node['role'] == 'master':
+            container = IP_TO_CONTAINER.get(node['ip'])
+            if container:
+                _, _, keys = get_node_details(runtime, container)
+                total_keys += keys
+    return total_keys
+
+def cmd_verify(runtime, args):
+    ensure_containers_running(runtime)
+    log("Verifying data integrity...", "INFO")
+    
+    num_keys = 1000
+    if args and hasattr(args, 'keys') and args.keys is not None:
+        num_keys = args.keys
+    else:
+        detected_keys = get_total_keys_in_cluster(runtime)
+        if detected_keys > 0:
+            num_keys = detected_keys
+            log(f"Auto-detected {num_keys} keys in the cluster for verification", "INFO")
+        else:
+            log("No keys detected in cluster. Defaulting verification to 1000 keys.", "INFO")
+    
+    commands = []
+    # Verify up to num_keys keys
+    for i in range(1, num_keys + 1):
+        key = f"key:{i:04d}"
+        commands.append(f"GET {key}")
+        
+    commands_str = "\n".join(commands) + "\n"
+    
+    full_cmd = [runtime, 'exec', '-i', 'redis-node-1', 'redis-cli', '-c', '-p', '6379']
+    p = subprocess.Popen(full_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout, stderr = p.communicate(input=commands_str)
+    
+    lines = stdout.splitlines()
+    values = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith('-> Redirected'):
+            continue
+        # Strip quotes if present
+        if line.startswith('"') and line.endswith('"'):
+            line = line[1:-1]
+        values.append(line)
+        
+    verified = 0
+    mismatched = 0
+    missing = 0
+    
+    for i in range(1, num_keys + 1):
+        key = f"key:{i:04d}"
+        expected_val = hashlib.sha256(key.encode()).hexdigest()
+        
+        if i - 1 < len(values):
+            actual_val = values[i - 1]
+            if actual_val == "nil" or not actual_val:
+                missing += 1
+            elif actual_val == expected_val:
+                verified += 1
+            else:
+                mismatched += 1
+        else:
+            missing += 1
+            
+    if verified == num_keys:
+        log(f"PASS — {verified}/{num_keys} keys verified", "SUCCESS")
+        return True
+    else:
+        log(f"FAIL — {missing} keys missing, {mismatched} values mismatched", "ERROR")
+        return False
+
+def backup_cluster_data(runtime):
+    try:
+        log("Backing up cluster data before rollback...", "INFO")
+        topology = get_cluster_topology(runtime)
+        if not topology:
+            log("No cluster topology found. Skipping backup.", "WARNING")
+            return None
+            
+        backup_data = []
+        lua_script = """
+        local keys = redis.call('KEYS', '*')
+        local result = {}
+        for _, key in ipairs(keys) do
+            local key_type = redis.call('TYPE', key).ok
+            local ttl = redis.call('PTTL', key)
+            local val
+            if key_type == 'string' then
+                val = redis.call('GET', key)
+            elseif key_type == 'hash' then
+                val = redis.call('HGETALL', key)
+            elseif key_type == 'list' then
+                val = redis.call('LRANGE', key, 0, -1)
+            elseif key_type == 'set' then
+                val = redis.call('SMEMBERS', key)
+            elseif key_type == 'zset' then
+                val = redis.call('ZRANGE', key, 0, -1, 'WITHSCORES')
+            end
+            table.insert(result, {key = key, type = key_type, ttl = ttl, value = val})
+        end
+        return cjson.encode(result)
+        """
+        
+        for node in topology:
+            if node['role'] != 'master':
+                continue
+            container = IP_TO_CONTAINER.get(node['ip'])
+            if not container:
+                continue
+                
+            rc, stdout, stderr = exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'EVAL', lua_script, '0'])
+            if rc != 0 or not stdout.strip():
+                log(f"Failed to backup keys on master {container}: {stderr}", "WARNING")
+                continue
+                
+            try:
+                node_data = json.loads(stdout.strip())
+                backup_data.extend(node_data)
+            except Exception as e:
+                log(f"Failed to parse backup JSON from {container}: {e}", "WARNING")
+                    
+        log(f"Successfully backed up {len(backup_data)} keys.", "SUCCESS")
+        return backup_data
+    except Exception as e:
+        log(f"Backup failed: {e}", "ERROR")
+        return None
+
+def restore_cluster_data(runtime, backup_data):
+    if not backup_data:
+        log("No backup data to restore.", "INFO")
+        return
+    try:
+        log(f"Restoring {len(backup_data)} keys to the cluster...", "INFO")
+        commands = []
+        for item in backup_data:
+            key = item['key']
+            key_type = item['type']
+            val = item['value']
+            ttl = item['ttl']
+            
+            if key_type == 'string':
+                escaped_val = val.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+                commands.append(f'SET "{key}" "{escaped_val}"')
+            elif key_type == 'hash':
+                hset_parts = [f'HSET "{key}"']
+                for i in range(0, len(val), 2):
+                    if i + 1 < len(val):
+                        fld = val[i].replace('\\', '\\\\').replace('"', '\\"')
+                        v = val[i+1].replace('\\', '\\\\').replace('"', '\\"')
+                        hset_parts.append(f'"{fld}" "{v}"')
+                if len(hset_parts) > 1:
+                    commands.append(" ".join(hset_parts))
+            elif key_type == 'list':
+                rpush_parts = [f'RPUSH "{key}"']
+                for v in val:
+                    v_esc = v.replace('\\', '\\\\').replace('"', '\\"')
+                    rpush_parts.append(f'"{v_esc}"')
+                if len(rpush_parts) > 1:
+                    commands.append(" ".join(rpush_parts))
+            elif key_type == 'set':
+                sadd_parts = [f'SADD "{key}"']
+                for v in val:
+                    v_esc = v.replace('\\', '\\\\').replace('"', '\\"')
+                    sadd_parts.append(f'"{v_esc}"')
+                if len(sadd_parts) > 1:
+                    commands.append(" ".join(sadd_parts))
+            elif key_type == 'zset':
+                zadd_parts = [f'ZADD "{key}"']
+                for i in range(0, len(val), 2):
+                    if i + 1 < len(val):
+                        member = val[i].replace('\\', '\\\\').replace('"', '\\"')
+                        score = val[i+1]
+                        zadd_parts.append(f'{score} "{member}"')
+                if len(zadd_parts) > 1:
+                    commands.append(" ".join(zadd_parts))
+                    
+            if ttl > 0:
+                commands.append(f'PEXPIRE "{key}" {ttl}')
+                
+        if not commands:
+            return
+            
+        commands_str = "\n".join(commands) + "\n"
+        
+        full_cmd = [runtime, 'exec', '-i', 'redis-node-1', 'redis-cli', '-c', '-p', '6379']
+        p = subprocess.Popen(full_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = p.communicate(input=commands_str)
+        log("Restore completed.", "SUCCESS")
+    except Exception as e:
+        log(f"Restore failed: {e}", "ERROR")
+
+def cmd_upgrade(runtime, args):
+    ensure_containers_running(runtime)
+    log(f"Starting rolling upgrade to version {args.target_version}...", "HEADER")
+    
+    # 1. Pre-flight checks
+    log("Step 1: Running pre-flight checks...", "INFO")
+    topology = get_cluster_topology(runtime)
+    if not topology:
+        log("Failed to retrieve cluster topology. Aborting.", "ERROR")
+        sys.exit(1)
+        
+    # Verify all nodes' containers are running and reachable
+    for n in topology:
+        container = IP_TO_CONTAINER.get(n['ip'])
+        rc, _, _ = exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'ping'])
+        if rc != 0:
+            log(f"Container {container} ({n['ip']}) is unreachable. Aborting.", "ERROR")
+            sys.exit(1)
+            
+    # Check if all nodes are already at the target version
+    all_upgraded = True
+    for n in topology:
+        container = IP_TO_CONTAINER.get(n['ip'])
+        if container:
+            ver, _, _ = get_node_details(runtime, container)
+            if ver != args.target_version:
+                all_upgraded = False
+                break
+        else:
+            all_upgraded = False
+            break
+            
+    if all_upgraded:
+        log(f"Cluster is already at version {args.target_version}. Nothing to do.", "SUCCESS")
+        return
+        
+    # Determine if this is a rollback (downgrade)
+    is_rollback = False
+    try:
+        def parse_ver(v):
+            return [int(x) for x in re.findall(r'\d+', v)]
+        target_parsed = parse_ver(args.target_version)
+        for n in topology:
+            container = IP_TO_CONTAINER.get(n['ip'])
+            if container:
+                node_ver, _, _ = get_node_details(runtime, container)
+                if target_parsed < parse_ver(node_ver):
+                    is_rollback = True
+                    break
+    except Exception:
+        pass
+    if is_rollback:
+        log("Rollback/downgrade detected. Replication sync check will be skipped on replicas until master nodes are also downgraded.", "INFO")
+        
+    # Run data verify baseline
+    log("Establishing pre-upgrade data baseline...", "INFO")
+    if not cmd_verify(runtime, None):
+        log("Pre-upgrade verification failed! Aborting upgrade.", "ERROR")
+        sys.exit(1)
+        
+    backup_data = None
+    if is_rollback:
+        backup_data = backup_cluster_data(runtime)
+        if backup_data:
+            try:
+                os.makedirs("logs", exist_ok=True)
+                with open("logs/rollback_backup.json", "w") as f:
+                    json.dump(backup_data, f, indent=2)
+                log("Backup saved to logs/rollback_backup.json", "SUCCESS")
+            except Exception as e:
+                log(f"Failed to write backup file: {e}", "WARNING")
+                
+    log("Pre-flight checks passed.", "SUCCESS")
+    
+    # Identify masters and replicas
+    masters = [n for n in topology if n['role'] == 'master']
+    replicas = [n for n in topology if n['role'] == 'replica']
+    
+    total_steps = len(topology)
+    current_step = 0
+    
+    # 2. Upgrade Replicas First (one at a time)
+    for rep in replicas:
+        current_step += 1
+        container_name = IP_TO_CONTAINER[rep['ip']]
+        
+        # Skip if already at the target version
+        current_ver, _, _ = get_node_details(runtime, container_name)
+        if current_ver == args.target_version:
+            log(f"[{current_step}/{total_steps}] Replica {rep['ip']} is already at version {args.target_version}. Skipping.", "INFO")
+            continue
+            
+        log(f"[{current_step}/{total_steps}] Upgrading replica {rep['ip']} ({container_name})...", "INFO")
+        
+        success = run_playbook('upgrade_node.yml', {
+            'target_host': container_name,
+            'target_version': args.target_version,
+            'skip_sync_wait': is_rollback
+        })
+        if not success:
+            log(f"Upgrade failed on replica {rep['ip']}. Stopping upgrade.", "ERROR")
+            sys.exit(1)
+            
+        log(f"[{current_step}/{total_steps}] Upgraded replica {rep['ip']} — cluster: ok", "SUCCESS")
+        
+    # 3. Upgrade Masters (one at a time, with failover)
+    for master in masters:
+        current_step += 1
+        master_container = IP_TO_CONTAINER[master['ip']]
+        
+        # Skip if already at the target version
+        current_ver, _, _ = get_node_details(runtime, master_container)
+        if current_ver == args.target_version:
+            log(f"[{current_step}/{total_steps}] Master {master['ip']} is already at version {args.target_version}. Skipping.", "INFO")
+            continue
+            
+        # Find replica for this master
+        master_replica = next((r for r in replicas if r['master_id'] == master['id']), None)
+        if not master_replica:
+            log(f"Could not find replica for master {master['ip']}. Aborting.", "ERROR")
+            sys.exit(1)
+            
+        replica_container = IP_TO_CONTAINER[master_replica['ip']]
+        log(f"Promoting replica {master_replica['ip']} ({replica_container}) to master...", "INFO")
+        
+        # Trigger failover
+        success = run_playbook('failover.yml', {
+            'target_replica': replica_container,
+            'force_takeover': is_rollback
+        })
+        if not success:
+            log(f"Failover failed on replica {master_replica['ip']}. Stopping upgrade.", "ERROR")
+            sys.exit(1)
+            
+        log(f"Failover complete. Former replica {master_replica['ip']} is now master.", "SUCCESS")
+        log(f"[{current_step}/{total_steps}] Upgrading former master {master['ip']} ({master_container})...", "INFO")
+        
+        # Now upgrade the old master (which is now a replica)
+        success = run_playbook('upgrade_node.yml', {
+            'target_host': master_container,
+            'target_version': args.target_version,
+            'skip_sync_wait': is_rollback
+        })
+        if not success:
+            log(f"Upgrade failed on former master {master['ip']}. Stopping upgrade.", "ERROR")
+            sys.exit(1)
+            
+        log(f"[{current_step}/{total_steps}] Upgraded former master {master['ip']} — cluster: ok", "SUCCESS")
+        
+    # 4. Post-upgrade verification
+    if backup_data:
+        restore_cluster_data(runtime, backup_data)
+        
+    log("Step 4: Running post-upgrade verification...", "INFO")
+    if not cmd_verify(runtime, None):
+        log("Post-upgrade data verification failed! Data integrity compromised.", "ERROR")
+        sys.exit(1)
+        
+    log(f"UPGRADE COMPLETE — all nodes on v{args.target_version}, data integrity verified", "SUCCESS")
+    show_status(runtime)
+
+def cmd_verify_full(runtime, args):
+    ensure_containers_running(runtime)
+    log("Running full cluster verification...", "HEADER")
+    
+    topology = get_cluster_topology(runtime)
+    if not topology:
+        log("Could not read cluster topology.", "ERROR")
+        sys.exit(1)
+        
+    # 1. Data Integrity
+    log("1. Checking Data Integrity...", "INFO")
+    data_ok = cmd_verify(runtime, None)
+    
+    # 2. Version Consistency
+    log("2. Checking Version Consistency...", "INFO")
+    versions = set()
+    for container in IP_TO_CONTAINER.values():
+        v, _, _ = get_node_details(runtime, container)
+        versions.add(v)
+    version_ok = len(versions) == 1
+    if version_ok:
+        log(f"PASS — All nodes running version {list(versions)[0]}", "SUCCESS")
+    else:
+        log(f"FAIL — Inconsistent versions found: {versions}", "ERROR")
+        
+    # 3. Topology Health
+    log("3. Checking Topology Health...", "INFO")
+    masters = [n for n in topology if n['role'] == 'master']
+    replicas = [n for n in topology if n['role'] == 'replica']
+    
+    # Check slots (16384 total)
+    total_slots = 0
+    for m in masters:
+        for start, end in m['slots']:
+            total_slots += (end - start + 1)
+            
+    slots_ok = total_slots == 16384
+    
+    # Check replicas per master
+    master_ids_with_replicas = {r['master_id'] for r in replicas}
+    replicas_ok = len(master_ids_with_replicas) == len(masters)
+    
+    topology_ok = slots_ok and replicas_ok
+    if topology_ok:
+        log(f"PASS — Topology is healthy (16384 slots covered, all masters have replicas)", "SUCCESS")
+    else:
+        log(f"FAIL — Topology unhealthy: slots covered = {total_slots}/16384, masters with replicas = {len(master_ids_with_replicas)}/{len(masters)}", "ERROR")
+        
+    # 4. Cluster State
+    log("4. Checking Cluster State...", "INFO")
+    # Query cluster info state
+    rc, stdout, _ = exec_redis_cmd(runtime, 'redis-node-1', ['redis-cli', '-p', '6379', 'cluster', 'info'])
+    state_ok = False
+    if rc == 0:
+        for line in stdout.splitlines():
+            if line.startswith('cluster_state:'):
+                state_ok = 'ok' in line
+                break
+    if state_ok:
+        log("PASS — Cluster state is ok", "SUCCESS")
+    else:
+        log("FAIL — Cluster state is failing", "ERROR")
+        
+    # 5. Replication Lag
+    log("5. Checking Replication Lag...", "INFO")
+    lag_ok = True
+    for r in replicas:
+        container = IP_TO_CONTAINER[r['ip']]
+        rc, stdout, _ = exec_redis_cmd(runtime, container, ['redis-cli', '-p', '6379', 'info', 'replication'])
+        if rc != 0 or 'master_link_status:up' not in stdout:
+            lag_ok = False
+            log(f"Node {r['ip']} replication link is down!", "ERROR")
+            
+    if lag_ok:
+        log("PASS — All replicas synced (master_link_status:up)", "SUCCESS")
+    else:
+        log("FAIL — Replication link down on one or more replicas", "ERROR")
+        
+    print("\n" + "="*40)
+    print("VERIFICATION SUMMARY")
+    print("="*40)
+    print(f"1. Data Integrity:      {'PASS' if data_ok else 'FAIL'}")
+    print(f"2. Version Consistency: {'PASS' if version_ok else 'FAIL'}")
+    print(f"3. Topology Health:     {'PASS' if topology_ok else 'FAIL'}")
+    print(f"4. Cluster State:       {'PASS' if state_ok else 'FAIL'}")
+    print(f"5. Replication Lag:     {'PASS' if lag_ok else 'FAIL'}")
+    print("="*40 + "\n")
+    
+    if data_ok and version_ok and topology_ok and state_ok and lag_ok:
+        log("Full verification passed successfully!", "SUCCESS")
+    else:
+        log("Full verification failed.", "ERROR")
+        sys.exit(1)
+
+def cmd_status(runtime, args):
+    show_status(runtime)
+
+# --- Stretch Goals implementation ---
+
+def cmd_scale(runtime, args):
+    global IP_TO_CONTAINER, CONTAINER_TO_IP
+    ensure_containers_running(runtime)
+    
+    if args.add_nodes:
+        num = args.add_nodes
+        log(f"Scaling out: Adding {num} nodes...", "HEADER")
+        
+        # Enforce that nodes are added in pairs to allow master-replica coupling
+        if num % 2 != 0:
+            log(f"Scaling out requires adding an even number of nodes to form master-replica pairs (e.g., --add-nodes 2). Received {num}.", "ERROR")
+            sys.exit(1)
+            
+        # Find current containers
+        topology = get_cluster_topology(runtime)
+        current_count = len(topology) if topology else 6
+        new_nodes = []
+        
+        # Start new containers
+        for i in range(num):
+            node_num = current_count + i + 1
+            ip = f"10.10.0.{10 + node_num}"
+            name = f"redis-node-{node_num}"
+            log(f"Spinning up container {name} with IP {ip}...", "INFO")
+            
+            # Spin up container using the same image as node-1
+            image_name = get_container_image(runtime)
+            network_name = get_container_network(runtime)
+            cmd = [
+                runtime, 'run', '-d',
+                '--name', name,
+                '--hostname', name,
+                '--network', network_name,
+                '--ip', ip,
+                '-v', f"{os.path.abspath('ansible/ssh')}:/ansible-keys:ro",
+                '--restart', 'unless-stopped',
+                image_name
+            ]
+            rc, _, stderr = run_command(cmd)
+            if rc != 0:
+                # Try fallback names if the dynamically queried image failed
+                cmd[-1] = 'redis-node-base:latest'
+                rc, _, stderr = run_command(cmd)
+                if rc != 0:
+                    cmd[-1] = 'infra-redis-node-1:latest'
+                    rc, _, stderr = run_command(cmd)
+                    if rc != 0:
+                        cmd[-1] = 'submission-redis-node-1:latest'
+                        rc, _, stderr = run_command(cmd)
+                        if rc != 0:
+                            log(f"Failed to spin up scaled node: {stderr}", "ERROR")
+                            sys.exit(1)
+            new_nodes.append((name, ip))
+            
+        # Update hosts.ini dynamically
+        with open('ansible/inventory/hosts.ini', 'r') as f:
+            lines = f.readlines()
+            
+        new_lines = []
+        inserted = False
+        for line in lines:
+            if '[redis_nodes:vars]' in line and not inserted:
+                for name, ip in new_nodes:
+                    new_lines.append(f"{name} ansible_host={ip}\n")
+                inserted = True
+            new_lines.append(line)
+            
+        with open('ansible/inventory/hosts.ini', 'w') as f:
+            f.writelines(new_lines)
+            
+        log("Inventory updated with new nodes.", "SUCCESS")
+        
+        # Refresh mappings globally
+        IP_TO_CONTAINER = load_ip_to_container_mapping()
+        CONTAINER_TO_IP = {v: k for k, v in IP_TO_CONTAINER.items()}
+        
+        # Run single-node provision playbook on the new nodes only
+        for name, ip in new_nodes:
+            log(f"Installing Redis on {name}...", "INFO")
+            # Get current version
+            v, _, _ = get_node_details(runtime, 'redis-node-1')
+            success = run_playbook('provision_node.yml', {
+                'target_host': name,
+                'redis_version': v
+            })
+            if not success:
+                log(f"Failed to provision node {name}.", "ERROR")
+                sys.exit(1)
+                
+            # Meet the node to the cluster
+            log(f"Meeting {name} ({ip}) to the cluster...", "INFO")
+            exec_redis_cmd(runtime, 'redis-node-1', ['redis-cli', '-p', '6379', 'cluster', 'meet', ip, '6379'])
+            
+        log("Waiting 10 seconds for cluster meet gossip to propagate...", "INFO")
+        time.sleep(10)
+        
+        # Set up replication for each pair (new master + new replica)
+        for idx in range(0, num, 2):
+            master_name, master_ip = new_nodes[idx]
+            replica_name, replica_ip = new_nodes[idx+1]
+            
+            log(f"Configuring replication: {replica_name} ({replica_ip}) -> {master_name} ({master_ip})...", "INFO")
+            
+            # Fetch master Node ID
+            rc, master_id_out, stderr = exec_redis_cmd(runtime, master_name, ['redis-cli', '-p', '6379', 'cluster', 'myid'])
+            if rc != 0 or not master_id_out.strip():
+                log(f"Failed to get Node ID for master node {master_name}: {stderr}", "ERROR")
+                sys.exit(1)
+            master_node_id = master_id_out.strip()
+            log(f"Node ID for master {master_name} is {master_node_id}", "INFO")
+            
+            # Set replica to replicate the master
+            rc, rep_out, stderr = exec_redis_cmd(runtime, replica_name, ['redis-cli', '-p', '6379', 'cluster', 'replicate', master_node_id])
+            if rc != 0:
+                log(f"Failed to make {replica_name} replicate {master_name}: {stderr}", "ERROR")
+                sys.exit(1)
+            log(f"Replica {replica_name} is now replicating {master_name}.", "SUCCESS")
+            
+        log("Waiting 5 seconds for replication topology to settle...", "INFO")
+        time.sleep(5)
+        
+        # Rebalance slots across all masters (rebalance will only target empty master, not replica)
+        log("Rebalancing cluster slots...", "INFO")
+        exec_redis_cmd(runtime, 'redis-node-1', ['redis-cli', '--cluster', 'rebalance', '10.10.0.11:6379', '--cluster-use-empty-masters'])
+        log("Scale out complete!", "SUCCESS")
+        show_status(runtime)
+        
+    elif args.remove_node:
+        node_id = args.remove_node
+        log(f"Scaling in: Removing node {node_id}...", "HEADER")
+        
+        topology = get_cluster_topology(runtime)
+        if not topology:
+            log("Could not read cluster topology.", "ERROR")
+            sys.exit(1)
+            
+        target_node = None
+        # Try resolving by container name
+        if node_id.startswith("redis-node-"):
+            ip = CONTAINER_TO_IP.get(node_id)
+            if ip:
+                for n in topology:
+                    if n['ip'] == ip:
+                        target_node = n
+                        break
+        # Try resolving by IP or Node ID
+        if not target_node:
+            for n in topology:
+                if n['ip'] == node_id or n['id'] == node_id:
+                    target_node = n
+                    break
+                    
+        if not target_node:
+            log(f"Could not find node {node_id} in the cluster topology.", "ERROR")
+            sys.exit(1)
+            
+        master_node = None
+        replica_node = None
+        
+        if target_node['role'] == 'master':
+            master_node = target_node
+            # Find the replica of this master
+            for n in topology:
+                if n['role'] == 'replica' and n['master_id'] == master_node['id']:
+                    replica_node = n
+                    break
+        elif target_node['role'] == 'replica':
+            replica_node = target_node
+            # Find the master of this replica
+            for n in topology:
+                if n['role'] == 'master' and n['id'] == replica_node['master_id']:
+                    master_node = n
+                    break
+        else:
+            log(f"Target node has an unknown role: {target_node['role']}", "ERROR")
+            sys.exit(1)
+            
+        if master_node:
+            log(f"Identified master node: {master_node['ip']} ({master_node['id']})", "INFO")
+        if replica_node:
+            log(f"Identified replica node: {replica_node['ip']} ({replica_node['id']})", "INFO")
+            
+        # Find an active node to run reshard and del-node commands on.
+        # This active node must NOT be one of the nodes being removed.
+        active_node = None
+        for n in topology:
+            if (not master_node or n['id'] != master_node['id']) and (not replica_node or n['id'] != replica_node['id']):
+                active_node = n
+                break
+                
+        if not active_node:
+            log("No other active node in the cluster to run scale-in operations on.", "ERROR")
+            sys.exit(1)
+            
+        active_container = IP_TO_CONTAINER.get(active_node['ip'])
+        
+        # 1. Reshard/migrate slots off the master (if it has slots assigned)
+        if master_node:
+            total_slots = sum(end - start + 1 for start, end in master_node['slots'])
+            if total_slots > 0:
+                log(f"Master node {master_node['ip']} has {total_slots} slots to migrate.", "INFO")
+                # Find all other master nodes
+                other_masters = [n for n in topology if n['role'] == 'master' and n['id'] != master_node['id']]
+                if not other_masters:
+                    log("Cannot scale in: no other master nodes are left in the cluster to receive the slots.", "ERROR")
+                    sys.exit(1)
+                    
+                slots_remaining = total_slots
+                for idx, target in enumerate(other_masters):
+                    if idx == len(other_masters) - 1:
+                        slots_to_move = slots_remaining
+                    else:
+                        slots_to_move = total_slots // len(other_masters)
+                        
+                    if slots_to_move <= 0:
+                        continue
+                        
+                    slots_remaining -= slots_to_move
+                    
+                    log(f"Migrating {slots_to_move} slots from {master_node['ip']} to {target['ip']}...", "INFO")
+                    
+                    rc, stdout, stderr = exec_redis_cmd(
+                        runtime,
+                        active_container,
+                        [
+                            'redis-cli', '--cluster', 'reshard', f"{active_node['ip']}:6379",
+                            '--cluster-from', master_node['id'],
+                            '--cluster-to', target['id'],
+                            '--cluster-slots', str(slots_to_move),
+                            '--cluster-yes'
+                        ]
+                    )
+                    if rc != 0:
+                        log(f"Failed to reshard slots from {master_node['ip']} to {target['ip']}: {stderr}\n{stdout}", "ERROR")
+                        sys.exit(1)
+                    log(f"Migrated {slots_to_move} slots successfully.", "SUCCESS")
+            else:
+                log(f"Master node {master_node['ip']} has 0 slots assigned. No resharding needed.", "INFO")
+                
+        # 2. Delete the replica node from the cluster
+        if replica_node:
+            log(f"Deleting replica node {replica_node['ip']} from cluster...", "INFO")
+            rc, stdout, stderr = exec_redis_cmd(
+                runtime,
+                active_container,
+                ['redis-cli', '--cluster', 'del-node', f"{active_node['ip']}:6379", replica_node['id']]
+            )
+            if rc != 0:
+                log(f"Failed to delete replica node: {stderr}", "WARNING")
+            else:
+                log("Replica node deleted from cluster.", "SUCCESS")
+                
+        # 3. Delete the master node from the cluster
+        if master_node:
+            log(f"Deleting master node {master_node['ip']} from cluster...", "INFO")
+            rc, stdout, stderr = exec_redis_cmd(
+                runtime,
+                active_container,
+                ['redis-cli', '--cluster', 'del-node', f"{active_node['ip']}:6379", master_node['id']]
+            )
+            if rc != 0:
+                log(f"Failed to delete master node: {stderr}", "WARNING")
+            else:
+                log("Master node deleted from cluster.", "SUCCESS")
+                
+        # 4. Infrastructure Cleanup (containers & inventory)
+        nodes_to_clean = []
+        if replica_node:
+            nodes_to_clean.append((IP_TO_CONTAINER.get(replica_node['ip']), replica_node['ip']))
+        if master_node:
+            nodes_to_clean.append((IP_TO_CONTAINER.get(master_node['ip']), master_node['ip']))
+            
+        for container_name, ip in nodes_to_clean:
+            if container_name and container_name != 'unknown':
+                log(f"Stopping and removing container {container_name}...", "INFO")
+                run_command([runtime, 'stop', container_name])
+                run_command([runtime, 'rm', container_name])
+                
+                log(f"Removing {container_name} from inventory...", "INFO")
+                try:
+                    with open('ansible/inventory/hosts.ini', 'r') as f:
+                        lines = f.readlines()
+                    new_lines = []
+                    for line in lines:
+                        if not line.strip().startswith(container_name):
+                            new_lines.append(line)
+                    with open('ansible/inventory/hosts.ini', 'w') as f:
+                        f.writelines(new_lines)
+                    log(f"Removed {container_name} from hosts.ini.", "SUCCESS")
+                except Exception as e:
+                    log(f"Failed to update inventory for {container_name}: {e}", "WARNING")
+                    
+        # Refresh global mappings
+        IP_TO_CONTAINER = load_ip_to_container_mapping()
+        CONTAINER_TO_IP = {v: k for k, v in IP_TO_CONTAINER.items()}
+        
+        log("Scale in complete!", "SUCCESS")
+        show_status(runtime)
+
+
+def cmd_rollback(runtime, args):
+    ensure_containers_running(runtime)
+    log(f"Rolling back cluster version to {args.target_version}...", "HEADER")
+    args.target_version = args.target_version
+    cmd_upgrade(runtime, args)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Redis Cluster Lifecycle Tool")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    
+    # provision command
+    prov_parser = subparsers.add_parser("provision", help="Provision the Redis cluster")
+    prov_parser.add_argument("--version", default="7.0.15", help="Redis version to install")
+    prov_parser.add_argument("--masters", type=int, default=3, help="Number of masters")
+    prov_parser.add_argument("--replicas-per-master", type=int, default=1, help="Replicas per master")
+    
+    # seed command
+    seed_parser = subparsers.add_parser("data", help="Data operations")
+    seed_subparsers = seed_parser.add_subparsers(dest="subcommand", required=True)
+    
+    data_seed_parser = seed_subparsers.add_parser("seed", help="Seed data into cluster")
+    data_seed_parser.add_argument("--keys", type=int, default=1000, help="Number of keys to seed")
+    
+    data_verify_parser = seed_subparsers.add_parser("verify", help="Verify data integrity")
+    data_verify_parser.add_argument("--keys", type=int, default=None, help="Number of keys to verify")
+
+
+    
+    # status command
+    subparsers.add_parser("status", help="Get cluster status dashboard")
+    
+    # upgrade command
+    up_parser = subparsers.add_parser("upgrade", help="Perform zero-downtime rolling upgrade")
+    up_parser.add_argument("--target-version", required=True, help="Target Redis version")
+    up_parser.add_argument("--strategy", default="rolling", choices=["rolling"], help="Upgrade strategy")
+    
+    # verify --full command
+    ver_parser = subparsers.add_parser("verify", help="Run cluster verifications")
+    ver_parser.add_argument("--full", action="store_true", required=True, help="Run all verification suites")
+    
+    # scale command
+    scale_parser = subparsers.add_parser("scale", help="Scale cluster")
+    scale_group = scale_parser.add_mutually_exclusive_group(required=True)
+    scale_group.add_argument("--add-nodes", type=int, help="Number of nodes to add")
+    scale_group.add_argument("--remove-node", help="Node ID to remove")
+    
+    # rollback command
+    rb_parser = subparsers.add_parser("rollback", help="Rollback cluster to target version")
+    rb_parser.add_argument("--target-version", required=True, help="Target Redis version to rollback to")
+    
+    args = parser.parse_args()
+    
+    # Set up automatic output redirection to output/ directory
+    subcommand = getattr(args, 'subcommand', None)
+    setup_output_redirection(args.command, subcommand)
+    
+    # Run prerequisite check first
+    runtime = prerequisite_check()
+    
+    # Log the operation
+    log(f"Running command: {' '.join(sys.argv)}", "INFO")
+    
+    if args.command == "provision":
+        cmd_provision(runtime, args)
+    elif args.command == "data":
+        if args.subcommand == "seed":
+            cmd_seed(runtime, args)
+        elif args.subcommand == "verify":
+            cmd_verify(runtime, args)
+    elif args.command == "status":
+        cmd_status(runtime, args)
+    elif args.command == "upgrade":
+        cmd_upgrade(runtime, args)
+    elif args.command == "verify":
+        if args.full:
+            cmd_verify_full(runtime, args)
+    elif args.command == "scale":
+        cmd_scale(runtime, args)
+    elif args.command == "rollback":
+        cmd_rollback(runtime, args)
+
+
+if __name__ == "__main__":
+    main()
