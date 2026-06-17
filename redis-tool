@@ -468,6 +468,19 @@ def run_playbook(playbook, extra_vars=None):
         env = os.environ.copy()
         env['ANSIBLE_CONFIG'] = os.path.abspath('ansible/ansible.cfg')
         cmd = ['ansible-playbook', '-i', 'inventory/hosts.ini', f'playbooks/{playbook}']
+        
+
+        key_source = os.path.abspath('ansible/ssh/id_rsa')
+        if os.path.exists(key_source):
+            try:
+                tmp_key = '/tmp/id_rsa'
+                shutil.copy2(key_source, tmp_key)
+                os.chmod(tmp_key, 0o600)
+                cmd.extend(['--private-key', tmp_key])
+                log(f"Copied SSH key to {tmp_key} and set permissions to 0600.", "INFO")
+            except Exception as e:
+                log(f"Failed to copy and set permissions on SSH key: {e}", "WARNING")
+
         if extra_vars:
             cmd.extend(['--extra-vars', json.dumps(extra_vars)])
 
