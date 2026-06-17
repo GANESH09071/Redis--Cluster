@@ -8,9 +8,9 @@ x-node-common: &node-common
   networks:
     redis-net:
   volumes:
-    # Mount the parent directory's ansible/ssh folder to inject keys
+
     - ../ansible/ssh:/ansible-keys:ro
-  # Ensure container stays running (runs sshd -D)
+
   restart: unless-stopped
 
 services:

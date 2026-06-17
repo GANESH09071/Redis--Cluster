@@ -18,14 +18,21 @@ The tool automatically performs a dependency check on startup. You must have:
 1. **Container Runtime**: Docker (Docker Desktop on Windows/macOS, or Docker Engine on Linux) or Podman.
 2. **Ansible**: `ansible-playbook` 2.14 or higher installed in the environment where the script is executed.
 
+3. **Execution Permissions**: The `redis-tool` script must be marked as executable (on Linux/macOS/WSL):
+   ```bash
+   chmod +x redis-tool
+   ```
+   run this above command before provision.
+
 ---
+
 
 ## Commands
 
 ### 1. Provision the Cluster
 Installs the specified version of Redis, configures it, and forms the cluster (3 masters, 3 replicas):
 ```bash
-./redis-tool provision --version 7.0.15
+./redis-tool provision --version 7.0.15 --masters 3 --replicas-per-master 1
 ```
 
 ### 2. Check Cluster Status
@@ -49,7 +56,7 @@ Validates that all 1000 seeded keys exist and their values match the expected SH
 ### 5. Rolling Upgrade
 Performs a safe, zero-downtime upgrade of all nodes to the target version:
 ```bash
-./redis-tool upgrade --target-version 7.2.6
+./redis-tool upgrade --target-version 7.2.6 --strategy rolling
 ```
 
 ### 6. Full Verification
@@ -61,6 +68,18 @@ Runs all five health-check suites (Data Integrity, Version Consistency, Topology
 Downgrades the cluster back to a previous version using the same zero-downtime rolling strategy:
 ```bash
 ./redis-tool rollback --target-version 7.0.15
+```
+
+### 8. Add Nodes (Scale Out)
+Scales out the cluster by adding a specified even number of nodes, provisioning them, and rebalancing the slots across the new topology:
+```bash
+./redis-tool scale --add-nodes 2
+```
+
+### 9. Remove Node (Scale In)
+Scales in the cluster by migrating slots away from the target node, removing it from the cluster topology, and tearing down the container:
+```bash
+./redis-tool scale --remove-node <node_id_or_name>
 ```
 
 ---
@@ -82,3 +101,8 @@ To achieve **zero client-visible downtime** during the upgrade:
 
 - **Source Compilation**: Compiling Redis from source ensures that exact version numbers (e.g. `7.0.15`, `7.2.6`) are installed, rather than depending on whatever versions happen to be in the OS package repositories.
 - **SSH Key Inject**: SSH keys are automatically generated under `ansible/ssh/` on first run and mounted to the containers. This removes the need to pre-configure passwords or host SSH keys manually.
+
+## Known Limitations
+   Rollback is manual and requires operator intervention.
+   Simultaneous failures of multiple nodes are not automatically recovered.
+   Production features such as monitoring, alerting, and backup management are outside the scope of this project.

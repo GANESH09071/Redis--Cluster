@@ -380,7 +380,6 @@ def cleanup_conflicting_infrastructure(runtime):
             if rc == 0:
                 runtimes_to_check.append(r)
 
-    # For the OTHER runtime, stop/remove project containers and networks to prevent subnet collisions
     other_runtimes = [r for r in runtimes_to_check if r != runtime]
     for r in other_runtimes:
         rc, stdout, _ = run_command([r, 'ps', '-a', '--filter', 'name=redis-node-', '--format', '{{.Names}}'])
@@ -396,8 +395,6 @@ def cleanup_conflicting_infrastructure(runtime):
                 log(f"Removing conflicting network {net} in {r}...", "INFO")
                 run_command([r, 'network', 'rm', net])
 
-    # For the CURRENT runtime, clean up the obsolete network 'infra_redis-net'
-    # if it exists, since the compose file explicitly uses 'redis-net'.
     if runtime in runtimes_to_check:
         rc, _, _ = run_command([runtime, 'network', 'inspect', 'infra_redis-net'])
         if rc == 0:

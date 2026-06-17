@@ -1,5 +1,4 @@
 ---
-# Pre-compile Redis on the target node once to speed up provisioning across all nodes and ensure GLIBC compatibility.
 - name: Check if Redis version is already compiled on control node
   stat:
     path: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin/redis-server"
@@ -79,7 +78,6 @@
   run_once: true
   when: not cached_redis_server.stat.exists
 
-# Now install compiled Redis binaries from the control node's cache to the target hosts
 - name: Check if correct Redis version is installed on target host
   command: redis-server --version
   register: redis_installed_version

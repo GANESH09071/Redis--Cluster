@@ -6,14 +6,12 @@ Proceeding...
 Cluster State: ok
 
 MASTERS
- 10.11.0.13:6379 [master] v7.0.15 slots: 12288-16383 keys: 114 mem: 1.83M
- 10.11.0.11:6379 [master] v7.0.15 slots: 1365-5460 keys: 115 mem: 1.87M
- 10.11.0.18:6379 [master] v7.0.15 slots: 0-1364,5461-6826,10923-12287 keys: 118 mem: 1.85M
- 10.11.0.12:6379 [master] v7.0.15 slots: 6827-10922 keys: 109 mem: 1.82M
+ 10.11.0.13:6379 [master] v7.0.15 slots: 10923-16383 keys: 717 mem: 2.12M
+ 10.11.0.11:6379 [master] v7.0.15 slots: 0-5460 keys: 698 mem: 2.12M
+ 10.11.0.12:6379 [master] v7.0.15 slots: 5461-10922 keys: 683 mem: 2.12M
 
 REPLICAS
- 10.11.0.15:6379 [replica] v7.0.15 replicating: 10.11.0.11:6379 mem: 1.74M
- 10.11.0.16:6379 [replica] v7.0.15 replicating: 10.11.0.12:6379 mem: 1.69M
- 10.11.0.14:6379 [replica] v7.0.15 replicating: 10.11.0.13:6379 mem: 1.74M
- 10.11.0.17:6379 [replica] v7.0.15 replicating: 10.11.0.18:6379 mem: 1.74M
+ 10.11.0.14:6379 [replica] v7.0.15 replicating: 10.11.0.13:6379 mem: 2.06M
+ 10.11.0.16:6379 [replica] v7.0.15 replicating: 10.11.0.12:6379 mem: 2.05M
+ 10.11.0.15:6379 [replica] v7.0.15 replicating: 10.11.0.11:6379 mem: 2.07M
 

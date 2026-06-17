@@ -1,14 +1,702 @@
 ✓ Podman 5.7.0 found
 ✓ Ansible 2.21.0 found
 Proceeding...
-[INFO] Running command: ./redis-tool rollback --target-version 7.0.15
+[INFO] Running command: ./redis-tool upgrade --target-version 7.2.6 --strategy rolling
 [INFO] SSH keys already present in ansible/ssh
 [INFO] Verifying container infrastructure...
 [INFO] All containers are already running
-[STG] Rolling back cluster version to 7.0.15...
-[INFO] SSH keys already present in ansible/ssh
-[INFO] Verifying container infrastructure...
-[INFO] All containers are already running
-[STG] Starting rolling upgrade to version 7.0.15...
+[STG] Starting rolling upgrade to version 7.2.6...
 [INFO] Step 1: Running pre-flight checks...
-[SUCCESS] Cluster is already at version 7.0.15. Nothing to do.
+[INFO] Establishing pre-upgrade data baseline...
+[INFO] SSH keys already present in ansible/ssh
+[INFO] Verifying container infrastructure...
+[INFO] All containers are already running
+[INFO] Verifying data integrity...
+[INFO] Auto-detected 2098 keys in the cluster for verification
+[SUCCESS] PASS — 2098/2098 keys verified
+[SUCCESS] Pre-flight checks passed.
+[INFO] [1/6] Upgrading replica 10.11.0.14 (redis-node-4)...
+[INFO] Verifying runner image...
+[INFO] Executing playbook upgrade_node.yml inside runner container...
+
+PLAY [Upgrade Redis on a single node] ******************************************
+
+TASK [Stop Redis server if running (rollback clean preparation)] ***************
+skipping: [redis-node-4]
+
+TASK [Clean Redis database files but preserve nodes.conf] **********************
+skipping: [redis-node-4]
+
+TASK [Run redis role for target version] ***************************************
+included: redis for redis-node-4
+
+TASK [redis : Check if Redis version is already compiled on control node] ******
+ok: [redis-node-4 -> localhost]
+
+TASK [redis : Ensure build dependencies are installed on target node] **********
+[WARNING]: Platform linux on host redis-node-4 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-4]
+
+TASK [redis : Create build and temporary install directory on target node] *****
+changed: [redis-node-4] => (item=/tmp/redis-build)
+changed: [redis-node-4] => (item=/tmp/redis-install)
+
+TASK [redis : Download Redis source tarball on target node] ********************
+changed: [redis-node-4]
+
+TASK [redis : Extract Redis source tarball on target node] *********************
+changed: [redis-node-4]
+
+TASK [redis : Compile Redis on target node] ************************************
+changed: [redis-node-4]
+
+TASK [redis : Install Redis to temporary directory on target node] *************
+changed: [redis-node-4]
+
+TASK [redis : Ensure cache directory exists on control node] *******************
+changed: [redis-node-4 -> localhost]
+
+TASK [redis : Fetch compiled redis-server to control node cache] ***************
+changed: [redis-node-4]
+
+TASK [redis : Fetch compiled redis-cli to control node cache] ******************
+changed: [redis-node-4]
+
+TASK [redis : Clean up temporary build directory on target node] ***************
+changed: [redis-node-4] => (item=/tmp/redis-build)
+changed: [redis-node-4] => (item=/tmp/redis-install)
+
+TASK [redis : Check if correct Redis version is installed on target host] ******
+ok: [redis-node-4]
+
+TASK [redis : Copy redis-server to target host] ********************************
+changed: [redis-node-4]
+
+TASK [redis : Copy redis-cli to target host] ***********************************
+changed: [redis-node-4]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-4]
+
+TASK [redis : Create Redis data directory] *************************************
+ok: [redis-node-4]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-4]
+
+TASK [redis : Check if Redis is running] ***************************************
+ok: [redis-node-4]
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+changed: [redis-node-4]
+
+TASK [redis : Force stop Redis if still running] *******************************
+changed: [redis-node-4]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-4]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-4]
+
+TASK [Wait for replication sync if node is a replica] **************************
+FAILED - RETRYING: [redis-node-4]: Wait for replication sync if node is a replica (60 retries left).
+FAILED - RETRYING: [redis-node-4]: Wait for replication sync if node is a replica (59 retries left).
+ok: [redis-node-4]
+
+PLAY RECAP *********************************************************************
+redis-node-4               : ok=24   changed=14   unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+
+[SUCCESS] [1/6] Upgraded replica 10.11.0.14 — cluster: ok
+[INFO] [2/6] Upgrading replica 10.11.0.16 (redis-node-6)...
+[INFO] Verifying runner image...
+[INFO] Executing playbook upgrade_node.yml inside runner container...
+
+PLAY [Upgrade Redis on a single node] ******************************************
+
+TASK [Stop Redis server if running (rollback clean preparation)] ***************
+skipping: [redis-node-6]
+
+TASK [Clean Redis database files but preserve nodes.conf] **********************
+skipping: [redis-node-6]
+
+TASK [Run redis role for target version] ***************************************
+included: redis for redis-node-6
+
+TASK [redis : Check if Redis version is already compiled on control node] ******
+ok: [redis-node-6 -> localhost]
+
+TASK [redis : Ensure build dependencies are installed on target node] **********
+skipping: [redis-node-6]
+
+TASK [redis : Create build and temporary install directory on target node] *****
+skipping: [redis-node-6] => (item=/tmp/redis-build) 
+skipping: [redis-node-6] => (item=/tmp/redis-install) 
+skipping: [redis-node-6]
+
+TASK [redis : Download Redis source tarball on target node] ********************
+skipping: [redis-node-6]
+
+TASK [redis : Extract Redis source tarball on target node] *********************
+skipping: [redis-node-6]
+
+TASK [redis : Compile Redis on target node] ************************************
+skipping: [redis-node-6]
+
+TASK [redis : Install Redis to temporary directory on target node] *************
+skipping: [redis-node-6]
+
+TASK [redis : Ensure cache directory exists on control node] *******************
+skipping: [redis-node-6]
+
+TASK [redis : Fetch compiled redis-server to control node cache] ***************
+skipping: [redis-node-6]
+
+TASK [redis : Fetch compiled redis-cli to control node cache] ******************
+skipping: [redis-node-6]
+
+TASK [redis : Clean up temporary build directory on target node] ***************
+skipping: [redis-node-6] => (item=/tmp/redis-build) 
+skipping: [redis-node-6] => (item=/tmp/redis-install) 
+skipping: [redis-node-6]
+
+TASK [redis : Check if correct Redis version is installed on target host] ******
+[WARNING]: Platform linux on host redis-node-6 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-6]
+
+TASK [redis : Copy redis-server to target host] ********************************
+changed: [redis-node-6]
+
+TASK [redis : Copy redis-cli to target host] ***********************************
+changed: [redis-node-6]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-6]
+
+TASK [redis : Create Redis data directory] *************************************
+ok: [redis-node-6]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-6]
+
+TASK [redis : Check if Redis is running] ***************************************
+ok: [redis-node-6]
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+changed: [redis-node-6]
+
+TASK [redis : Force stop Redis if still running] *******************************
+changed: [redis-node-6]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-6]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-6]
+
+TASK [Wait for replication sync if node is a replica] **************************
+FAILED - RETRYING: [redis-node-6]: Wait for replication sync if node is a replica (60 retries left).
+FAILED - RETRYING: [redis-node-6]: Wait for replication sync if node is a replica (59 retries left).
+ok: [redis-node-6]
+
+PLAY RECAP *********************************************************************
+redis-node-6               : ok=14   changed=5    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+
+[SUCCESS] [2/6] Upgraded replica 10.11.0.16 — cluster: ok
+[INFO] [3/6] Upgrading replica 10.11.0.15 (redis-node-5)...
+[INFO] Verifying runner image...
+[INFO] Executing playbook upgrade_node.yml inside runner container...
+
+PLAY [Upgrade Redis on a single node] ******************************************
+
+TASK [Stop Redis server if running (rollback clean preparation)] ***************
+skipping: [redis-node-5]
+
+TASK [Clean Redis database files but preserve nodes.conf] **********************
+skipping: [redis-node-5]
+
+TASK [Run redis role for target version] ***************************************
+included: redis for redis-node-5
+
+TASK [redis : Check if Redis version is already compiled on control node] ******
+ok: [redis-node-5 -> localhost]
+
+TASK [redis : Ensure build dependencies are installed on target node] **********
+skipping: [redis-node-5]
+
+TASK [redis : Create build and temporary install directory on target node] *****
+skipping: [redis-node-5] => (item=/tmp/redis-build) 
+skipping: [redis-node-5] => (item=/tmp/redis-install) 
+skipping: [redis-node-5]
+
+TASK [redis : Download Redis source tarball on target node] ********************
+skipping: [redis-node-5]
+
+TASK [redis : Extract Redis source tarball on target node] *********************
+skipping: [redis-node-5]
+
+TASK [redis : Compile Redis on target node] ************************************
+skipping: [redis-node-5]
+
+TASK [redis : Install Redis to temporary directory on target node] *************
+skipping: [redis-node-5]
+
+TASK [redis : Ensure cache directory exists on control node] *******************
+skipping: [redis-node-5]
+
+TASK [redis : Fetch compiled redis-server to control node cache] ***************
+skipping: [redis-node-5]
+
+TASK [redis : Fetch compiled redis-cli to control node cache] ******************
+skipping: [redis-node-5]
+
+TASK [redis : Clean up temporary build directory on target node] ***************
+skipping: [redis-node-5] => (item=/tmp/redis-build) 
+skipping: [redis-node-5] => (item=/tmp/redis-install) 
+skipping: [redis-node-5]
+
+TASK [redis : Check if correct Redis version is installed on target host] ******
+[WARNING]: Platform linux on host redis-node-5 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-5]
+
+TASK [redis : Copy redis-server to target host] ********************************
+changed: [redis-node-5]
+
+TASK [redis : Copy redis-cli to target host] ***********************************
+changed: [redis-node-5]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-5]
+
+TASK [redis : Create Redis data directory] *************************************
+ok: [redis-node-5]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-5]
+
+TASK [redis : Check if Redis is running] ***************************************
+ok: [redis-node-5]
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+changed: [redis-node-5]
+
+TASK [redis : Force stop Redis if still running] *******************************
+changed: [redis-node-5]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-5]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-5]
+
+TASK [Wait for replication sync if node is a replica] **************************
+FAILED - RETRYING: [redis-node-5]: Wait for replication sync if node is a replica (60 retries left).
+FAILED - RETRYING: [redis-node-5]: Wait for replication sync if node is a replica (59 retries left).
+ok: [redis-node-5]
+
+PLAY RECAP *********************************************************************
+redis-node-5               : ok=14   changed=5    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+
+[SUCCESS] [3/6] Upgraded replica 10.11.0.15 — cluster: ok
+[INFO] Promoting replica 10.11.0.14 (redis-node-4) to master...
+[INFO] Verifying runner image...
+[INFO] Executing playbook failover.yml inside runner container...
+
+PLAY [Trigger Cluster Failover] ************************************************
+
+TASK [Run cluster failover command (takeover)] *********************************
+skipping: [redis-node-4]
+
+TASK [Run cluster failover command (standard)] *********************************
+[WARNING]: Platform linux on host redis-node-4 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+changed: [redis-node-4]
+
+TASK [Wait for failover to complete (replica becomes master)] ******************
+ok: [redis-node-4]
+
+PLAY RECAP *********************************************************************
+redis-node-4               : ok=2    changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+
+[SUCCESS] Failover complete. Former replica 10.11.0.14 is now master.
+[INFO] [4/6] Upgrading former master 10.11.0.13 (redis-node-3)...
+[INFO] Verifying runner image...
+[INFO] Executing playbook upgrade_node.yml inside runner container...
+
+PLAY [Upgrade Redis on a single node] ******************************************
+
+TASK [Stop Redis server if running (rollback clean preparation)] ***************
+skipping: [redis-node-3]
+
+TASK [Clean Redis database files but preserve nodes.conf] **********************
+skipping: [redis-node-3]
+
+TASK [Run redis role for target version] ***************************************
+included: redis for redis-node-3
+
+TASK [redis : Check if Redis version is already compiled on control node] ******
+ok: [redis-node-3 -> localhost]
+
+TASK [redis : Ensure build dependencies are installed on target node] **********
+skipping: [redis-node-3]
+
+TASK [redis : Create build and temporary install directory on target node] *****
+skipping: [redis-node-3] => (item=/tmp/redis-build) 
+skipping: [redis-node-3] => (item=/tmp/redis-install) 
+skipping: [redis-node-3]
+
+TASK [redis : Download Redis source tarball on target node] ********************
+skipping: [redis-node-3]
+
+TASK [redis : Extract Redis source tarball on target node] *********************
+skipping: [redis-node-3]
+
+TASK [redis : Compile Redis on target node] ************************************
+skipping: [redis-node-3]
+
+TASK [redis : Install Redis to temporary directory on target node] *************
+skipping: [redis-node-3]
+
+TASK [redis : Ensure cache directory exists on control node] *******************
+skipping: [redis-node-3]
+
+TASK [redis : Fetch compiled redis-server to control node cache] ***************
+skipping: [redis-node-3]
+
+TASK [redis : Fetch compiled redis-cli to control node cache] ******************
+skipping: [redis-node-3]
+
+TASK [redis : Clean up temporary build directory on target node] ***************
+skipping: [redis-node-3] => (item=/tmp/redis-build) 
+skipping: [redis-node-3] => (item=/tmp/redis-install) 
+skipping: [redis-node-3]
+
+TASK [redis : Check if correct Redis version is installed on target host] ******
+[WARNING]: Platform linux on host redis-node-3 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-3]
+
+TASK [redis : Copy redis-server to target host] ********************************
+changed: [redis-node-3]
+
+TASK [redis : Copy redis-cli to target host] ***********************************
+changed: [redis-node-3]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-3]
+
+TASK [redis : Create Redis data directory] *************************************
+ok: [redis-node-3]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-3]
+
+TASK [redis : Check if Redis is running] ***************************************
+ok: [redis-node-3]
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+changed: [redis-node-3]
+
+TASK [redis : Force stop Redis if still running] *******************************
+changed: [redis-node-3]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-3]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-3]
+
+TASK [Wait for replication sync if node is a replica] **************************
+FAILED - RETRYING: [redis-node-3]: Wait for replication sync if node is a replica (60 retries left).
+FAILED - RETRYING: [redis-node-3]: Wait for replication sync if node is a replica (59 retries left).
+ok: [redis-node-3]
+
+PLAY RECAP *********************************************************************
+redis-node-3               : ok=14   changed=5    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+
+[SUCCESS] [4/6] Upgraded former master 10.11.0.13 — cluster: ok
+[INFO] Promoting replica 10.11.0.15 (redis-node-5) to master...
+[INFO] Verifying runner image...
+[INFO] Executing playbook failover.yml inside runner container...
+
+PLAY [Trigger Cluster Failover] ************************************************
+
+TASK [Run cluster failover command (takeover)] *********************************
+skipping: [redis-node-5]
+
+TASK [Run cluster failover command (standard)] *********************************
+[WARNING]: Platform linux on host redis-node-5 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+changed: [redis-node-5]
+
+TASK [Wait for failover to complete (replica becomes master)] ******************
+ok: [redis-node-5]
+
+PLAY RECAP *********************************************************************
+redis-node-5               : ok=2    changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+
+[SUCCESS] Failover complete. Former replica 10.11.0.15 is now master.
+[INFO] [5/6] Upgrading former master 10.11.0.11 (redis-node-1)...
+[INFO] Verifying runner image...
+[INFO] Executing playbook upgrade_node.yml inside runner container...
+
+PLAY [Upgrade Redis on a single node] ******************************************
+
+TASK [Stop Redis server if running (rollback clean preparation)] ***************
+skipping: [redis-node-1]
+
+TASK [Clean Redis database files but preserve nodes.conf] **********************
+skipping: [redis-node-1]
+
+TASK [Run redis role for target version] ***************************************
+included: redis for redis-node-1
+
+TASK [redis : Check if Redis version is already compiled on control node] ******
+ok: [redis-node-1 -> localhost]
+
+TASK [redis : Ensure build dependencies are installed on target node] **********
+skipping: [redis-node-1]
+
+TASK [redis : Create build and temporary install directory on target node] *****
+skipping: [redis-node-1] => (item=/tmp/redis-build) 
+skipping: [redis-node-1] => (item=/tmp/redis-install) 
+skipping: [redis-node-1]
+
+TASK [redis : Download Redis source tarball on target node] ********************
+skipping: [redis-node-1]
+
+TASK [redis : Extract Redis source tarball on target node] *********************
+skipping: [redis-node-1]
+
+TASK [redis : Compile Redis on target node] ************************************
+skipping: [redis-node-1]
+
+TASK [redis : Install Redis to temporary directory on target node] *************
+skipping: [redis-node-1]
+
+TASK [redis : Ensure cache directory exists on control node] *******************
+skipping: [redis-node-1]
+
+TASK [redis : Fetch compiled redis-server to control node cache] ***************
+skipping: [redis-node-1]
+
+TASK [redis : Fetch compiled redis-cli to control node cache] ******************
+skipping: [redis-node-1]
+
+TASK [redis : Clean up temporary build directory on target node] ***************
+skipping: [redis-node-1] => (item=/tmp/redis-build) 
+skipping: [redis-node-1] => (item=/tmp/redis-install) 
+skipping: [redis-node-1]
+
+TASK [redis : Check if correct Redis version is installed on target host] ******
+[WARNING]: Platform linux on host redis-node-1 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-1]
+
+TASK [redis : Copy redis-server to target host] ********************************
+changed: [redis-node-1]
+
+TASK [redis : Copy redis-cli to target host] ***********************************
+changed: [redis-node-1]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-1]
+
+TASK [redis : Create Redis data directory] *************************************
+ok: [redis-node-1]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-1]
+
+TASK [redis : Check if Redis is running] ***************************************
+ok: [redis-node-1]
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+changed: [redis-node-1]
+
+TASK [redis : Force stop Redis if still running] *******************************
+changed: [redis-node-1]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-1]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-1]
+
+TASK [Wait for replication sync if node is a replica] **************************
+FAILED - RETRYING: [redis-node-1]: Wait for replication sync if node is a replica (60 retries left).
+FAILED - RETRYING: [redis-node-1]: Wait for replication sync if node is a replica (59 retries left).
+ok: [redis-node-1]
+
+PLAY RECAP *********************************************************************
+redis-node-1               : ok=14   changed=5    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+
+[SUCCESS] [5/6] Upgraded former master 10.11.0.11 — cluster: ok
+[INFO] Promoting replica 10.11.0.16 (redis-node-6) to master...
+[INFO] Verifying runner image...
+[INFO] Executing playbook failover.yml inside runner container...
+
+PLAY [Trigger Cluster Failover] ************************************************
+
+TASK [Run cluster failover command (takeover)] *********************************
+skipping: [redis-node-6]
+
+TASK [Run cluster failover command (standard)] *********************************
+[WARNING]: Platform linux on host redis-node-6 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+changed: [redis-node-6]
+
+TASK [Wait for failover to complete (replica becomes master)] ******************
+ok: [redis-node-6]
+
+PLAY RECAP *********************************************************************
+redis-node-6               : ok=2    changed=1    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+
+[SUCCESS] Failover complete. Former replica 10.11.0.16 is now master.
+[INFO] [6/6] Upgrading former master 10.11.0.12 (redis-node-2)...
+[INFO] Verifying runner image...
+[INFO] Executing playbook upgrade_node.yml inside runner container...
+
+PLAY [Upgrade Redis on a single node] ******************************************
+
+TASK [Stop Redis server if running (rollback clean preparation)] ***************
+skipping: [redis-node-2]
+
+TASK [Clean Redis database files but preserve nodes.conf] **********************
+skipping: [redis-node-2]
+
+TASK [Run redis role for target version] ***************************************
+included: redis for redis-node-2
+
+TASK [redis : Check if Redis version is already compiled on control node] ******
+ok: [redis-node-2 -> localhost]
+
+TASK [redis : Ensure build dependencies are installed on target node] **********
+skipping: [redis-node-2]
+
+TASK [redis : Create build and temporary install directory on target node] *****
+skipping: [redis-node-2] => (item=/tmp/redis-build) 
+skipping: [redis-node-2] => (item=/tmp/redis-install) 
+skipping: [redis-node-2]
+
+TASK [redis : Download Redis source tarball on target node] ********************
+skipping: [redis-node-2]
+
+TASK [redis : Extract Redis source tarball on target node] *********************
+skipping: [redis-node-2]
+
+TASK [redis : Compile Redis on target node] ************************************
+skipping: [redis-node-2]
+
+TASK [redis : Install Redis to temporary directory on target node] *************
+skipping: [redis-node-2]
+
+TASK [redis : Ensure cache directory exists on control node] *******************
+skipping: [redis-node-2]
+
+TASK [redis : Fetch compiled redis-server to control node cache] ***************
+skipping: [redis-node-2]
+
+TASK [redis : Fetch compiled redis-cli to control node cache] ******************
+skipping: [redis-node-2]
+
+TASK [redis : Clean up temporary build directory on target node] ***************
+skipping: [redis-node-2] => (item=/tmp/redis-build) 
+skipping: [redis-node-2] => (item=/tmp/redis-install) 
+skipping: [redis-node-2]
+
+TASK [redis : Check if correct Redis version is installed on target host] ******
+[WARNING]: Platform linux on host redis-node-2 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.17/reference_appendices/interpreter_discovery.html for more information.
+ok: [redis-node-2]
+
+TASK [redis : Copy redis-server to target host] ********************************
+changed: [redis-node-2]
+
+TASK [redis : Copy redis-cli to target host] ***********************************
+changed: [redis-node-2]
+
+TASK [redis : Create Redis configuration directory] ****************************
+ok: [redis-node-2]
+
+TASK [redis : Create Redis data directory] *************************************
+ok: [redis-node-2]
+
+TASK [redis : Write Redis configuration file] **********************************
+ok: [redis-node-2]
+
+TASK [redis : Check if Redis is running] ***************************************
+ok: [redis-node-2]
+
+TASK [redis : Stop Redis if running and version mismatch or config changed] ****
+changed: [redis-node-2]
+
+TASK [redis : Force stop Redis if still running] *******************************
+changed: [redis-node-2]
+
+TASK [redis : Start Redis server] **********************************************
+changed: [redis-node-2]
+
+TASK [redis : Wait for Redis to start] *****************************************
+ok: [redis-node-2]
+
+TASK [Wait for replication sync if node is a replica] **************************
+FAILED - RETRYING: [redis-node-2]: Wait for replication sync if node is a replica (60 retries left).
+FAILED - RETRYING: [redis-node-2]: Wait for replication sync if node is a replica (59 retries left).
+ok: [redis-node-2]
+
+PLAY RECAP *********************************************************************
+redis-node-2               : ok=14   changed=5    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+
+[SUCCESS] [6/6] Upgraded former master 10.11.0.12 — cluster: ok
+[INFO] Step 4: Running post-upgrade verification...
+[INFO] SSH keys already present in ansible/ssh
+[INFO] Verifying container infrastructure...
+[INFO] All containers are already running
+[INFO] Verifying data integrity...
+[INFO] Auto-detected 2098 keys in the cluster for verification
+[SUCCESS] PASS — 2098/2098 keys verified
+[SUCCESS] UPGRADE COMPLETE — all nodes on v7.2.6, data integrity verified
+
+Cluster State: ok
+
+MASTERS
+ 10.11.0.15:6379 [master] v7.2.6 slots: 0-5460 keys: 698 mem: 1.89M
+ 10.11.0.16:6379 [master] v7.2.6 slots: 5461-10922 keys: 683 mem: 1.88M
+ 10.11.0.14:6379 [master] v7.2.6 slots: 10923-16383 keys: 717 mem: 1.89M
+
+REPLICAS
+ 10.11.0.12:6379 [replica] v7.2.6 replicating: 10.11.0.16:6379 mem: 1.77M
+ 10.11.0.11:6379 [replica] v7.2.6 replicating: 10.11.0.15:6379 mem: 1.80M
+ 10.11.0.13:6379 [replica] v7.2.6 replicating: 10.11.0.14:6379 mem: 1.78M
+
