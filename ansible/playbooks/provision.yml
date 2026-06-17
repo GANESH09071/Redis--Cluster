@@ -32,8 +32,8 @@
     - name: Form cluster if not already healthy
       command: >
         redis-cli --cluster create
-        10.10.0.11:6379 10.10.0.12:6379 10.10.0.13:6379
-        10.10.0.14:6379 10.10.0.15:6379 10.10.0.16:6379
+        10.11.0.11:6379 10.11.0.12:6379 10.11.0.13:6379
+        10.11.0.14:6379 10.11.0.15:6379 10.11.0.16:6379
         --cluster-replicas 1 --cluster-yes
       when: cluster_info_check.rc != 0 or "cluster_state:ok" not in cluster_info_check.stdout
 

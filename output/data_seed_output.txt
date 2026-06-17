@@ -1,16 +1,16 @@
 ✓ Podman 5.7.0 found
 ✓ Ansible 2.21.0 found
 Proceeding...
-[INFO] Running command: ./redis-tool data seed --keys 324
+[INFO] Running command: ./redis-tool data seed --keys 456
 [INFO] SSH keys already present in ansible/ssh
 [INFO] Verifying container infrastructure...
 [INFO] All containers are already running
 [INFO] Flushing existing data from master nodes...
-[INFO] Seeding 324 keys into cluster...
+[INFO] Seeding 456 keys into cluster...
 [SUCCESS] Seeding summary:
-Total keys inserted: 324
+Total keys inserted: 456
 Failures: 0
 Distribution across masters:
- - 10.10.0.11: 112 keys
- - 10.10.0.12: 105 keys
- - 10.10.0.13: 107 keys
+ - 10.11.0.11: 157 keys
+ - 10.11.0.12: 144 keys
+ - 10.11.0.13: 155 keys

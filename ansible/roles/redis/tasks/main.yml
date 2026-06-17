@@ -1,54 +1,85 @@
 ---
-- name: Check if redis-server is installed
+# Pre-compile Redis on the Ansible control node (localhost) once to speed up provisioning across all nodes.
+- name: Check if Redis version is already compiled on control node
+  stat:
+    path: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}/bin/redis-server"
+  register: cached_redis_server
+  delegate_to: localhost
+  run_once: true
+
+- name: Compile Redis on control node if not cached
+  block:
+    - name: Ensure build dependencies are installed on control node
+      apt:
+        name:
+          - build-essential
+          - pkg-config
+          - curl
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Create cache and build directory on control node
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ playbook_dir }}/../../cache"
+        - "/tmp/redis-build"
+
+    - name: Download Redis source tarball on control node
+      get_url:
+        url: "https://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
+        dest: "/tmp/redis-build/redis-{{ redis_version }}.tar.gz"
+
+    - name: Extract Redis source tarball on control node
+      unarchive:
+        src: "/tmp/redis-build/redis-{{ redis_version }}.tar.gz"
+        dest: "/tmp/redis-build"
+        remote_src: yes
+
+    - name: Compile Redis on control node
+      shell: make -j$(nproc) MALLOC=libc
+      args:
+        chdir: "/tmp/redis-build/redis-{{ redis_version }}"
+
+    - name: Install Redis to cache directory on control node
+      shell: make PREFIX={{ playbook_dir }}/../../cache/redis-{{ redis_version }} install MALLOC=libc
+      args:
+        chdir: "/tmp/redis-build/redis-{{ redis_version }}"
+
+    - name: Clean up temporary build directory on control node
+      file:
+        path: "/tmp/redis-build"
+        state: absent
+  delegate_to: localhost
+  run_once: true
+  become: no
+  when: not cached_redis_server.stat.exists
+
+# Now install compiled Redis binaries from the control node's cache to the target hosts
+- name: Check if correct Redis version is installed on target host
   command: redis-server --version
   register: redis_installed_version
   ignore_errors: true
   changed_when: false
 
-- name: Install build dependencies if needed
-  apt:
-    name:
-      - build-essential
-      - pkg-config
-      - curl
-    state: present
-    update_cache: yes
-  become: yes
-  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
+- name: Install compiled Redis on target host
+  block:
+    - name: Copy redis-server to target host
+      copy:
+        src: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}/bin/redis-server"
+        dest: "/usr/local/bin/redis-server"
+        mode: '0755'
+      become: yes
 
-- name: Download Redis source tarball
-  get_url:
-    url: "https://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
-    dest: "/tmp/redis-{{ redis_version }}.tar.gz"
-  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
-
-- name: Extract Redis source tarball
-  unarchive:
-    src: "/tmp/redis-{{ redis_version }}.tar.gz"
-    dest: "/tmp"
-    remote_src: yes
-  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
-
-- name: Clean Redis build dir
-  command: make distclean
-  args:
-    chdir: "/tmp/redis-{{ redis_version }}"
-  become: yes
-  ignore_errors: yes
-  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
-
-- name: Compile Redis with libc allocator
-  shell: make -j$(nproc) MALLOC=libc
-  args:
-    chdir: "/tmp/redis-{{ redis_version }}"
-  become: yes
-  when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
-
-- name: Install Redis
-  command: make install MALLOC=libc
-  args:
-    chdir: "/tmp/redis-{{ redis_version }}"
-  become: yes
+    - name: Copy redis-cli to target host
+      copy:
+        src: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}/bin/redis-cli"
+        dest: "/usr/local/bin/redis-cli"
+        mode: '0755'
+      become: yes
   when: redis_installed_version.rc != 0 or redis_version not in redis_installed_version.stdout
 
 

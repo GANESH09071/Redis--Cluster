@@ -20,7 +20,7 @@ services:
     hostname: redis-node-1
     networks:
       redis-net:
-        ipv4_address: 10.10.0.11
+        ipv4_address: 10.11.0.11
 
   redis-node-2:
     <<: *node-common
@@ -28,7 +28,7 @@ services:
     hostname: redis-node-2
     networks:
       redis-net:
-        ipv4_address: 10.10.0.12
+        ipv4_address: 10.11.0.12
 
   redis-node-3:
     <<: *node-common
@@ -36,7 +36,7 @@ services:
     hostname: redis-node-3
     networks:
       redis-net:
-        ipv4_address: 10.10.0.13
+        ipv4_address: 10.11.0.13
 
   redis-node-4:
     <<: *node-common
@@ -44,7 +44,7 @@ services:
     hostname: redis-node-4
     networks:
       redis-net:
-        ipv4_address: 10.10.0.14
+        ipv4_address: 10.11.0.14
 
   redis-node-5:
     <<: *node-common
@@ -52,7 +52,7 @@ services:
     hostname: redis-node-5
     networks:
       redis-net:
-        ipv4_address: 10.10.0.15
+        ipv4_address: 10.11.0.15
 
   redis-node-6:
     <<: *node-common
@@ -60,7 +60,7 @@ services:
     hostname: redis-node-6
     networks:
       redis-net:
-        ipv4_address: 10.10.0.16
+        ipv4_address: 10.11.0.16
 
 networks:
   redis-net:
@@ -68,4 +68,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.10.0.0/24
+        - subnet: 10.11.0.0/24

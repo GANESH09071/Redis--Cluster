@@ -1,10 +1,35 @@
 ✓ Podman 5.7.0 found
 ✓ Ansible 2.21.0 found
 Proceeding...
-[INFO] Running command: ./redis-tool data verify
+[INFO] Running command: ./redis-tool verify --full
+[INFO] SSH keys already present in ansible/ssh
+[INFO] Verifying container infrastructure...
+[INFO] All containers are already running
+[STG] Running full cluster verification...
+[INFO] 1. Checking Data Integrity...
 [INFO] SSH keys already present in ansible/ssh
 [INFO] Verifying container infrastructure...
 [INFO] All containers are already running
 [INFO] Verifying data integrity...
-[INFO] Auto-detected 324 keys in the cluster for verification
-[SUCCESS] PASS — 324/324 keys verified
+[INFO] Auto-detected 456 keys in the cluster for verification
+[SUCCESS] PASS — 456/456 keys verified
+[INFO] 2. Checking Version Consistency...
+[SUCCESS] PASS — All nodes running version 7.2.6
+[INFO] 3. Checking Topology Health...
+[SUCCESS] PASS — Topology is healthy (16384 slots covered, all masters have replicas)
+[INFO] 4. Checking Cluster State...
+[SUCCESS] PASS — Cluster state is ok
+[INFO] 5. Checking Replication Lag...
+[SUCCESS] PASS — All replicas synced (master_link_status:up)
+
+========================================
+VERIFICATION SUMMARY
+========================================
+1. Data Integrity:      PASS
+2. Version Consistency: PASS
+3. Topology Health:     PASS
+4. Cluster State:       PASS
+5. Replication Lag:     PASS
+========================================
+
+[SUCCESS] Full verification passed successfully!
