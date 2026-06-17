@@ -1,0 +1,4 @@
+cache
+ansible/ssh/id_rsa
+ansible/ssh/id_rsa.pub
+
