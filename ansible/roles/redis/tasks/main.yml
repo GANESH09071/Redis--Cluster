@@ -1,15 +1,15 @@
 ---
-# Pre-compile Redis on the Ansible control node (localhost) once to speed up provisioning across all nodes.
+# Pre-compile Redis on the target node once to speed up provisioning across all nodes and ensure GLIBC compatibility.
 - name: Check if Redis version is already compiled on control node
   stat:
-    path: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}/bin/redis-server"
+    path: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin/redis-server"
   register: cached_redis_server
   delegate_to: localhost
   run_once: true
 
-- name: Compile Redis on control node if not cached
+- name: Compile Redis on target node if not cached
   block:
-    - name: Ensure build dependencies are installed on control node
+    - name: Ensure build dependencies are installed on target node
       apt:
         name:
           - build-essential
@@ -19,43 +19,64 @@
         update_cache: yes
       become: yes
 
-    - name: Create cache and build directory on control node
+    - name: Create build and temporary install directory on target node
       file:
         path: "{{ item }}"
         state: directory
         mode: '0755'
       loop:
-        - "{{ playbook_dir }}/../../cache"
         - "/tmp/redis-build"
+        - "/tmp/redis-install"
 
-    - name: Download Redis source tarball on control node
+    - name: Download Redis source tarball on target node
       get_url:
         url: "https://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
         dest: "/tmp/redis-build/redis-{{ redis_version }}.tar.gz"
 
-    - name: Extract Redis source tarball on control node
+    - name: Extract Redis source tarball on target node
       unarchive:
         src: "/tmp/redis-build/redis-{{ redis_version }}.tar.gz"
         dest: "/tmp/redis-build"
         remote_src: yes
 
-    - name: Compile Redis on control node
+    - name: Compile Redis on target node
       shell: make -j$(nproc) MALLOC=libc
       args:
         chdir: "/tmp/redis-build/redis-{{ redis_version }}"
 
-    - name: Install Redis to cache directory on control node
-      shell: make PREFIX={{ playbook_dir }}/../../cache/redis-{{ redis_version }} install MALLOC=libc
+    - name: Install Redis to temporary directory on target node
+      shell: make PREFIX=/tmp/redis-install install MALLOC=libc
       args:
         chdir: "/tmp/redis-build/redis-{{ redis_version }}"
 
-    - name: Clean up temporary build directory on control node
+    - name: Ensure cache directory exists on control node
       file:
-        path: "/tmp/redis-build"
+        path: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+    - name: Fetch compiled redis-server to control node cache
+      fetch:
+        src: "/tmp/redis-install/bin/redis-server"
+        dest: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin/redis-server"
+        flat: yes
+
+    - name: Fetch compiled redis-cli to control node cache
+      fetch:
+        src: "/tmp/redis-install/bin/redis-cli"
+        dest: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin/redis-cli"
+        flat: yes
+
+    - name: Clean up temporary build directory on target node
+      file:
+        path: "{{ item }}"
         state: absent
-  delegate_to: localhost
+      loop:
+        - "/tmp/redis-build"
+        - "/tmp/redis-install"
+  delegate_to: "{{ ansible_play_hosts[0] }}"
   run_once: true
-  become: no
   when: not cached_redis_server.stat.exists
 
 # Now install compiled Redis binaries from the control node's cache to the target hosts
@@ -69,14 +90,14 @@
   block:
     - name: Copy redis-server to target host
       copy:
-        src: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}/bin/redis-server"
+        src: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin/redis-server"
         dest: "/usr/local/bin/redis-server"
         mode: '0755'
       become: yes
 
     - name: Copy redis-cli to target host
       copy:
-        src: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}/bin/redis-cli"
+        src: "{{ playbook_dir }}/../../cache/redis-{{ redis_version }}-target/bin/redis-cli"
         dest: "/usr/local/bin/redis-cli"
         mode: '0755'
       become: yes
